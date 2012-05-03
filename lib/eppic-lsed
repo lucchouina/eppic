@@ -1,0 +1,43 @@
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+s/yyback/eppicback/g
+s/yybgin/eppicbgin/g
+s/yycrank/eppiccrank/g
+s/yyerror/eppicerror/g
+s/yyestate/eppicestate/g
+s/yyextra/eppicextra/g
+s/yyfnd/eppicfnd/g
+s/yyin/eppicin/g
+s/yyinput/eppicinput/g
+s/yyleng/eppicleng/g
+s/yylex/eppiclex/g
+s/yylineno/eppiclineno/g
+s/yylook/eppiclook/g
+s/yylsp/eppiclsp/g
+s/yylstate/eppiclstate/g
+s/yylval/eppiclval/g
+s/yymatch/eppicmatch/g
+s/yymorfg/eppicmorfg/g
+s/yyolsp/eppicolsp/g
+s/yyout/eppicout/g
+s/yyoutput/eppicoutput/g
+s/yyprevious/eppicprevious/g
+s/yysbuf/eppicsbuf/g
+s/yysptr/eppicsptr/g
+s/yysvec/eppicsvec/g
+s/yytchar/eppictchar/g
+s/yytext/eppictext/g
+s/yytop/eppictop/g
+s/yyunput/eppicunput/g
+s/yyvstop/eppicvstop/g
+s/yywrap/eppicwrap/g
+s/yydebug/eppicdebug/g
