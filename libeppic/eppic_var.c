@@ -669,8 +669,12 @@ ull apiv, mem;
 		if(!strncmp(name, "IMG_", 4)) off=4;
 		if(!local) {
 			vp=eppic_newvar(name);
-            if(API_GETVAL(name+off, &apiv, vp->v)) {
+            if(API_GETVAL(name+off, &apiv, eppic_legacy?0:vp->v)) {
 			    vp->ini=1;
+                if(eppic_legacy) {
+                    eppic_defbtype(vp->v, apiv);
+			        vp->v->mem=apiv;
+                }
 			    /* put this on the global list */
 			    eppic_enqueue(apiglobs, vp);
             }

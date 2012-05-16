@@ -1134,6 +1134,7 @@ static apiops nullops= {
 };
 
 apiops *eppic_ops=&nullops;;
+int eppic_legacy=0;
 
 void
 eppic_apiset(apiops *o, int abi, int nbpw, int sign)
@@ -1141,6 +1142,8 @@ eppic_apiset(apiops *o, int abi, int nbpw, int sign)
 def_t *dt;
 
 	eppic_ops=o?o:&nullops;
+    // for now, use env var to control symbol lookups mode.
+    if(getenv("EPPIC_LEGACY_MODE")) eppic_legacy=1;
 	eppic_setdefbtype(nbpw, sign);
 	/* get the pre defines and push them. */
 	dt=API_GETDEFS();

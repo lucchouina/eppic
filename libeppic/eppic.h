@@ -466,7 +466,7 @@ type_t  *eppic_enum_decl(int ctype_t, node_t *n, dvar_t *dvl);
 type_t  *eppic_addstorage(type_t *t1, type_t *t2);
 type_t  *eppic_getvoidstruct(int ctype);
 
-extern int lineno, needvar, instruct, nomacs;
+extern int lineno, needvar, instruct, nomacs, eppic_legacy;
 node_t *lastv;
 
 #define NULLNODE ((node_t*)0)
