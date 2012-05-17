@@ -14,6 +14,10 @@ To make use of these files:
 [3] Check out the eppic code files to a proper location for crash's use
     You can make these files available by checking them out to either /usr/share/eppic/crash or $HOME/.eppic.
     
+    EXAMPLE:
+       git clone http://code.google.com/p/eppic
+       cp -r eppic/applications/crash/code/* $HOME/.eppic
+    
 [4] Load the eppic extension in your crash session
     crash> extend extensions/eppic.so
     Suggestion: add 'extend extensions/eppic.so' to your ~/.crashrc file so you do not have to do this every time 
