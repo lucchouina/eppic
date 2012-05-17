@@ -1,0 +1,42 @@
+The code directory is where Linux kernel analysis eppic code resides.
+
+To make use of these files:
+===========================
+
+[1] Get and build the crash tool
+    Crash is available from http://people.redhat.com/anderson.
+    Build it with - 'make'
+
+[2] Build the crash extensions as well
+    Build these with 'make extensions'
+    This will build crash/extenssions/eppic.so, the eppic engine for crash.
+    
+[3] Check out the eppic code files to a proper location for crash's use
+    You can make these files available by checking them out to either /usr/share/eppic/crash or $HOME/.eppic.
+    
+[4] Load the eppic extension in your crash session
+    crash> extend extensions/eppic.so
+    Suggestion: add 'extend extensions/eppic.so' to your ~/.crashrc file so you do not have to do this every time you fire up crash.
+    The loading of eppic.so will also load the eppic code from the above mentioned locations.
+    
+At this point the new commands created by the eppic file load are evailable. For examnple, you can now type 'crash> ipcs -m' and it will execute the eppic code associated with that command (see code/ipcs.c).
+
+Editing cycle.
+==============
+   Editing inside crash (with auto-reload):
+   ========================================
+   You can edit a file or function or from the location of the last eppic compile error from within crash itself. Exiting from the editor will automatically re-compile the file and make your changes immediately effective.
+    
+   EXAMPLES:
+      crash> edit -f ipcs.c    # edit the ipcs.c file
+      crash> edit ipcs         # edit at the file:line# where function ipcs starts
+      crash> edit -l           # edit at the file:line# where the last compile error occurred.
+
+   Editing outside of crash itself.
+   ================================
+   When you use an external editor to modify the eppic files you must tell crash to reload the modified files. You can either load a specific file or load all of the files from a directory.          
+    EXAMPLES:
+    crash> load ipcs.c    # re-compiles and loads the ipcs.c file only
+    crash> load .         # re-compiled and loads of the files in ~/.eppic
+    
+
