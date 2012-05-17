@@ -15,12 +15,12 @@
 #include "eppic_api.h"
 typedef unsigned long long caddr;
 
-#define SRCPOS_S	struct srcpos_s
-#define DVAR_S		struct dvar_s
-#define CASELIST_S	struct caselist_s
-#define CASEVAL_S	struct caseval_s
-#define STMEMBER_S	struct stmember_s
-#define STINFO_S	struct stinfo_s
+#define SRCPOS_S    struct srcpos_s
+#define DVAR_S      struct dvar_s
+#define CASELIST_S  struct caselist_s
+#define CASEVAL_S   struct caseval_s
+#define STMEMBER_S  struct stmember_s
+#define STINFO_S    struct stinfo_s
 
 SRCPOS_S;
 DVAR_S;
@@ -32,121 +32,121 @@ STINFO_S;
 
 /************* source position tracking ************/
 typedef SRCPOS_S {
-	char *file;
-	int line;
-	int col;
+    char *file;
+    int line;
+    int col;
 } srcpos_t;
 
 /* member information */
 typedef MEMBER_S {
 
-	char *name;
-	int offset;	/* offset from top of structure */
-	int size;	/* size in bytes of the member or of the bit array */
-	int fbit;	/* fist bit (-1) is not a bit field */
-	int nbits;	/* number of bits for this member */
-	int value;      /* for a enum member, the corresponding value_t */
+    char *name;
+    int offset; /* offset from top of structure */
+    int size;   /* size in bytes of the member or of the bit array */
+    int fbit;   /* fist bit (-1) is not a bit field */
+    int nbits;  /* number of bits for this member */
+    int value;      /* for a enum member, the corresponding value_t */
 
 } member_t;
 
 /* list to hold enum constant information */
 typedef ENUM_S {
 
-	struct enum_s *next;
-	char *name;
-	int value;
+    struct enum_s *next;
+    char *name;
+    int value;
 
 } enum_t;
 
 /* list of macro symbols and there corresponding value_ts */
 typedef DEF_S {
-	struct def_s * next;
-	char *name;
-	char *val;
+    struct def_s * next;
+    char *name;
+    char *val;
 
 } def_t;
 
 /* type_t information past back and forth */
 typedef TYPE_S {
-	int type;	/* type_t of type_t */
-	ull idx;	/* index to basetype_t or ctype_t */
-	int size;	/* size of this item */
-			/* ... next fields are use internally */
-	int typattr;	/* base type_t qualifiers */
-	int ref;	/* level of reference */
-	int fct;        /* 1 if function pointer */
-	int *idxlst;    /* points to list of indexes if array */
-	ull rtype;	/* type_t a reference refers too */
+    int type;   /* type_t of type_t */
+    ull idx;    /* index to basetype_t or ctype_t */
+    int size;   /* size of this item */
+            /* ... next fields are use internally */
+    int typattr;    /* base type_t qualifiers */
+    int ref;    /* level of reference */
+    int fct;        /* 1 if function pointer */
+    int *idxlst;    /* points to list of indexes if array */
+    ull rtype;  /* type_t a reference refers too */
 } type_t;
 
 /* scope/storage of variables */
-#define S_FILE		1	/* persistant file scope */
-#define S_STAT		2	/* persistant statement scope */
-#define S_AUTO		3	/* stack (default) */
-#define S_GLOB		4	/* add to the global variables */
-#define S_PARSE		5	/* only used during parsing */
+#define S_FILE      1   /* persistant file scope */
+#define S_STAT      2   /* persistant statement scope */
+#define S_AUTO      3   /* stack (default) */
+#define S_GLOB      4   /* add to the global variables */
+#define S_PARSE     5   /* only used during parsing */
 
 typedef union vu_s {
-	unsigned char uc;
-	signed char sc;
-	unsigned short us;
-	signed short ss;
-	unsigned int ul;
-	signed int sl;
-	unsigned long long ull;
-	signed long long sll;
-	void *data;
+    unsigned char uc;
+    signed char sc;
+    unsigned short us;
+    signed short ss;
+    unsigned int ul;
+    signed int sl;
+    unsigned long long ull;
+    signed long long sll;
+    void *data;
 } vu_t;
 
 /************* value_t **************/
 typedef VALUE_S  {
-	type_t 	 type;
-	int	 set;	/* is this is a Lvalue_t then set is 1 */
-	VALUE_S	*setval;/* value_t to set back to */
-	void	(*setfct)(struct value_s*, struct value_s*);
-			/* the function that will set the value */
-	ARRAY_S	*arr;	/* array associated with value */
-	vu_t	 v;
-	ull	 mem;
+    type_t   type;
+    int  set;   /* is this is a Lvalue_t then set is 1 */
+    VALUE_S *setval;/* value_t to set back to */
+    void    (*setfct)(struct value_s*, struct value_s*);
+            /* the function that will set the value */
+    ARRAY_S *arr;   /* array associated with value */
+    vu_t     v;
+    ull  mem;
 } value_t;
 
 /************** array linked lists *****************/
 typedef ARRAY_S {
 
-	ARRAY_S *next;	/* to support a linked list of array elements */
-	ARRAY_S *prev;
-	int ref;	/* reference count on this array */
-	VALUE_S *idx;	/* arrays can be indexed using any type of variables */
-	VALUE_S *val;	/* arrays element values */
+    ARRAY_S *next;  /* to support a linked list of array elements */
+    ARRAY_S *prev;
+    int ref;    /* reference count on this array */
+    VALUE_S *idx;   /* arrays can be indexed using any type of variables */
+    VALUE_S *val;   /* arrays element values */
 
 } array_t;
 
 /************* node_t *************/
 typedef NODE_S {
-	VALUE_S* (*exe)(void*);	/* execute it */
-	void   (*free)(void*);	/* free it up */
-	char* (*name)(void*);	/* get a name */
-	void *data;		/* opaque data */
-	NODE_S* next;
-	SRCPOS_S pos;
+    VALUE_S* (*exe)(void*); /* execute it */
+    void   (*free)(void*);  /* free it up */
+    char* (*name)(void*);   /* get a name */
+    void *data;     /* opaque data */
+    NODE_S* next;
+    SRCPOS_S pos;
 } node_t;
 
 typedef IDX_S {
 
-	int nidx;
-	NODE_S *idxs[MAXIDX];
+    int nidx;
+    NODE_S *idxs[MAXIDX];
 
 } idx_t;
 
 /*************** variable list ****************/
 typedef VAR_S {
 
-	char *name;
-	VAR_S *next;
-	VAR_S *prev;
-	VALUE_S *v;
-	int ini;
-	DVAR_S *dv;
+    char *name;
+    VAR_S *next;
+    VAR_S *prev;
+    VALUE_S *v;
+    int ini;
+    DVAR_S *dv;
 
 } var_t;
 
@@ -165,29 +165,29 @@ typedef VAR_S {
 #define TYPE_SIZE(t) ((t)->type==V_REF?eppic_defbsize():(t)->size)
 
 /* type_ts of jumps */
-#define J_CONTINUE	1
-#define J_BREAK		2
-#define J_RETURN	3
-#define J_EXIT		4
+#define J_CONTINUE  1
+#define J_BREAK     2
+#define J_RETURN    3
+#define J_EXIT      4
 
-#define eppic_setval(v, v2)	if((v)->set) ((v)->setfct)((v)->setval, (v2))
+#define eppic_setval(v, v2) if((v)->set) ((v)->setfct)((v)->setval, (v2))
 
 /************* case *************/
 typedef CASEVAL_S {
 
-	int isdef;
-	ull val;
-	CASEVAL_S *next;
-	SRCPOS_S pos;
+    int isdef;
+    ull val;
+    CASEVAL_S *next;
+    SRCPOS_S pos;
 
 } caseval_t;
 
 typedef CASELIST_S {
 
-	CASEVAL_S *vals;
-	NODE_S *stmt;
-	CASELIST_S *next;
-	SRCPOS_S pos;
+    CASEVAL_S *vals;
+    NODE_S *stmt;
+    CASELIST_S *next;
+    SRCPOS_S pos;
 
 } caselist_t;
 
@@ -203,29 +203,29 @@ typedef STMEMBER_S {
 
 typedef DVAR_S {
 
-	char		*name;
-	int		 refcount;
-	int		 ref;
-	int		 fct;
-	int		 bitfield;
-	int		 nbits;
-	IDX_S		*idx;
-	NODE_S		*init;
-	VAR_S		*fargs;
-	SRCPOS_S	 pos;
-	DVAR_S		*next;
+    char        *name;
+    int      refcount;
+    int      ref;
+    int      fct;
+    int      bitfield;
+    int      nbits;
+    IDX_S       *idx;
+    NODE_S      *init;
+    VAR_S       *fargs;
+    SRCPOS_S     pos;
+    DVAR_S      *next;
 
 } dvar_t;
 
 typedef STINFO_S {
-	char		*name;	/* structure name */
-	ull		 idx;	/* key for search */
-	int		 all;	/* local : partial or complete declaration ? */
-	TYPE_S		 ctype;	/* associated type */
-	TYPE_S		 rtype;	/* real type_t when typedef */
-	STMEMBER_S	*stm;	/* linked list of members */
-	ENUM_S		*enums;	/* enums names and values */
-	STINFO_S	 *next;  /* next struct on the list */
+    char        *name;  /* structure name */
+    ull      idx;   /* key for search */
+    int      all;   /* local : partial or complete declaration ? */
+    TYPE_S       ctype; /* associated type */
+    TYPE_S       rtype; /* real type_t when typedef */
+    STMEMBER_S  *stm;   /* linked list of members */
+    ENUM_S      *enums; /* enums names and values */
+    STINFO_S     *next;  /* next struct on the list */
 
 } stinfo_t;
 
@@ -284,7 +284,7 @@ node_t  *eppic_macexists(node_t *var_t);
 node_t  *eppic_newptype(var_t *v);
 node_t  *eppic_newpval(node_t *vn, int fmt);
 node_t  *eppic_strconcat(node_t *, node_t *);
-node_t	*eppic_typecast(type_t*type, node_t*expr);
+node_t  *eppic_typecast(type_t*type, node_t*expr);
 
 dvar_t  *eppic_newdvar(node_t *v);
 dvar_t  *eppic_linkdvar(dvar_t *dvl, dvar_t *dv);
@@ -472,9 +472,9 @@ node_t *lastv;
 #define NULLNODE ((node_t*)0)
 
 /* configuration variables */
-#define S_MAXSTRLEN	1024	/* lengh of a STRING variable value_t */
-#define S_MAXDEEP	10000   /* maximum stacking of compound statements calls (runtime) */
-#define S_MAXSDEEP	10      /* maximum depth of nested compound statements (compile) */
-#define S_MAXFILES	200	    /* maximum number of macro files  */
+#define S_MAXSTRLEN 1024    /* lengh of a STRING variable value_t */
+#define S_MAXDEEP   10000   /* maximum stacking of compound statements calls (runtime) */
+#define S_MAXSDEEP  10      /* maximum depth of nested compound statements (compile) */
+#define S_MAXFILES  200     /* maximum number of macro files  */
 
-#define S_VARARG	"__VARARG" /* name of the special var for ... */
+#define S_VARARG    "__VARARG" /* name of the special var for ... */

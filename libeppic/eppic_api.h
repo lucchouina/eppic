@@ -18,15 +18,15 @@
 #define S_MINOR 0
 
 #define MAX_SYMNAMELEN  100
-#define MAXIDX		20
+#define MAXIDX      20
 
 /* abi values */
-#define ABI_MIPS	1
-#define ABI_INTEL_X86	2
-#define ABI_INTEL_IA	3
+#define ABI_MIPS    1
+#define ABI_INTEL_X86   2
+#define ABI_INTEL_IA    3
 #define ABI_S390        4
 #define ABI_S390X       5
-#define ABI_PPC64	6
+#define ABI_PPC64   6
 
 /* types of variables */
 #define V_BASE          1
@@ -38,15 +38,15 @@
 #define V_TYPEDEF       7
 #define V_ARRAY         8
 
-#define ENUM_S		struct enum_s
-#define DEF_S		struct def_s
-#define MEMBER_S	struct member_s
-#define TYPE_S		struct type_s
-#define VALUE_S		struct value_s
-#define ARRAY_S		struct array_s
-#define NODE_S		struct node_s
-#define IDX_S		struct idx_s
-#define VAR_S		struct var_s
+#define ENUM_S      struct enum_s
+#define DEF_S       struct def_s
+#define MEMBER_S    struct member_s
+#define TYPE_S      struct type_s
+#define VALUE_S     struct value_s
+#define ARRAY_S     struct array_s
+#define NODE_S      struct node_s
+#define IDX_S       struct idx_s
+#define VAR_S       struct var_s
 
 ENUM_S;
 DEF_S;
@@ -70,26 +70,26 @@ typedef unsigned long ul;
 /* THe API function calls numbers */
 typedef struct {
 
-        int (*getmem)(ull, void *, int);	/* write to system image */
-        int (*putmem)(ull, void *, int);	/* read from system image */
-	char* (*member)(char *, ull, TYPE_S *	/* get type and positional information ... */
-		, MEMBER_S *, ull *lidx); 	/* ... about the member of a structure */
-	int (*getctype)(int ctype, char *	/* get struct/union type information */
-		, TYPE_S*); 
-	char* (*getrtype)(ull, TYPE_S *);		/* get complex type information */
-	int (*alignment)(ull);			/* get alignment value for a type */
-	int (*getval)(char *, ull *, VALUE_S *);	/* get the value of a system variable */
-	ENUM_S* (*getenum)(char *name);		/* get the list of symbols for an enum type */
-	DEF_S*  (*getdefs)(void);		/* get the list of compiler pre-defined macros */
-	uint8_t (*get_uint8)(void*);
-	uint16_t (*get_uint16)(void*);
-	uint32_t (*get_uint32)(void*);
-	uint64_t (*get_uint64)(void*);
-	char* (*findsym)(char*);
+    int (*getmem)(ull, void *, int);        /* write to system image */
+    int (*putmem)(ull, void *, int);        /* read from system image */
+    char* (*member)(char *, ull, TYPE_S *   /* get type and positional information ... */
+        , MEMBER_S *, ull *lidx);           /* ... about the member of a structure */
+    int (*getctype)(int ctype, char *       /* get struct/union type information */
+        , TYPE_S*); 
+    char* (*getrtype)(ull, TYPE_S *);       /* get complex type information */
+    int (*alignment)(ull);                  /* get alignment value for a type */
+    int (*getval)(char *, ull *, VALUE_S *);/* get the value of a system variable */
+    ENUM_S* (*getenum)(char *name);         /* get the list of symbols for an enum type */
+    DEF_S*  (*getdefs)(void);               /* get the list of compiler pre-defined macros */
+    uint8_t (*get_uint8)(void*);
+    uint16_t (*get_uint16)(void*);
+    uint32_t (*get_uint32)(void*);
+    uint64_t (*get_uint64)(void*);
+    char* (*findsym)(char*);
 } apiops; 
 
 /*
-	Builtin API defines....
+    Builtin API defines....
 */
 /* call this function to install a new builtin 
 
@@ -102,8 +102,8 @@ typedef struct {
 */
 typedef VALUE_S* bf_t(VALUE_S*, ...);
 typedef struct btspec {
-	char *proto;
-	bf_t *fp;
+    char *proto;
+    bf_t *fp;
 } btspec_t;
 
 /* dso entry points */
@@ -115,97 +115,97 @@ typedef struct btspec {
 #define BT_ENDDSO_SYM  "btend"
 
 /* maximum number of parameters that can be passed to a builtin */
-#define BT_MAXARGS	20
+#define BT_MAXARGS  20
 
 extern apiops *eppic_ops;
-#define API_GETMEM(i, p, n)	((eppic_ops->getmem)((i), (p), (n)))
-#define API_PUTMEM(i, p, n)	((eppic_ops->putmem)((i), (p), (n)))
-#define API_MEMBER(n, i, tm, m, l)	((eppic_ops->member)((n), (i), (tm), (m), (l)))
-#define API_GETCTYPE(i, n, t)	((eppic_ops->getctype)((i), (n), (t)))
-#define API_GETRTYPE(i, t)	((eppic_ops->getrtype)((i), (t)))
-#define API_ALIGNMENT(i)	((eppic_ops->alignment)((i)))
-#define API_GETVAL(n, v, val)	((eppic_ops->getval)((n), (v), (val)))
-#define API_GETENUM(n)		((eppic_ops->getenum)(n))
-#define API_GETDEFS()		((eppic_ops->getdefs)())
-#define API_GET_UINT8(ptr)	((eppic_ops->get_uint8)(ptr))
-#define API_GET_UINT16(ptr)	((eppic_ops->get_uint16)(ptr))
-#define API_GET_UINT32(ptr)	((eppic_ops->get_uint32)(ptr))
-#define API_GET_UINT64(ptr)	((eppic_ops->get_uint64)(ptr))
-#define API_FINDSYM(p)		((eppic_ops->findsym)(p))
+#define API_GETMEM(i, p, n) ((eppic_ops->getmem)((i), (p), (n)))
+#define API_PUTMEM(i, p, n) ((eppic_ops->putmem)((i), (p), (n)))
+#define API_MEMBER(n, i, tm, m, l)  ((eppic_ops->member)((n), (i), (tm), (m), (l)))
+#define API_GETCTYPE(i, n, t)   ((eppic_ops->getctype)((i), (n), (t)))
+#define API_GETRTYPE(i, t)  ((eppic_ops->getrtype)((i), (t)))
+#define API_ALIGNMENT(i)    ((eppic_ops->alignment)((i)))
+#define API_GETVAL(n, v, val)   ((eppic_ops->getval)((n), (v), (val)))
+#define API_GETENUM(n)      ((eppic_ops->getenum)(n))
+#define API_GETDEFS()       ((eppic_ops->getdefs)())
+#define API_GET_UINT8(ptr)  ((eppic_ops->get_uint8)(ptr))
+#define API_GET_UINT16(ptr) ((eppic_ops->get_uint16)(ptr))
+#define API_GET_UINT32(ptr) ((eppic_ops->get_uint32)(ptr))
+#define API_GET_UINT64(ptr) ((eppic_ops->get_uint64)(ptr))
+#define API_FINDSYM(p)      ((eppic_ops->findsym)(p))
 
 #if linux
-#	if __LP64__
-#		define eppic_getptr(v, t) 	((t*)eppic_getval(v))
-#	else
-#		define eppic_getptr(v, t) 	((t*)(ul)eppic_getval(v))
-#	endif
+#   if __LP64__
+#       define eppic_getptr(v, t)   ((t*)eppic_getval(v))
+#   else
+#       define eppic_getptr(v, t)   ((t*)(ul)eppic_getval(v))
+#   endif
 #else
-#	if (_MIPS_SZLONG == 64)
-#		define eppic_getptr(v, t) 	((t*)eppic_getval(v))
-#	else
-#		define eppic_getptr(v, t) 	((t*)(ul)eppic_getval(v))
-#	endif
+#   if (_MIPS_SZLONG == 64)
+#       define eppic_getptr(v, t)   ((t*)eppic_getval(v))
+#   else
+#       define eppic_getptr(v, t)   ((t*)(ul)eppic_getval(v))
+#   endif
 #endif
 
 /* startup function */
-int	 eppic_open(void);		/* initialize a session with eppic */
-void	 eppic_apiset(apiops *, int, int, int);/* define the API for a connection */
-void	 eppic_setofile(void *);		/* eppic should output messages to this file */
-void	*eppic_getofile(void);		/* where is eppic currently outputing */
-void	 eppic_setmpath(char *p);	/* set the search path for eppic scripts */
-void	 eppic_setipath(char *p);	/* set the search path for eppic include files  */
-VAR_S	*eppic_builtin(char *proto, bf_t);/* install a builtin function */
+int  eppic_open(void);      /* initialize a session with eppic */
+void     eppic_apiset(apiops *, int, int, int);/* define the API for a connection */
+void     eppic_setofile(void *);        /* eppic should output messages to this file */
+void    *eppic_getofile(void);      /* where is eppic currently outputing */
+void     eppic_setmpath(char *p);   /* set the search path for eppic scripts */
+void     eppic_setipath(char *p);   /* set the search path for eppic include files  */
+VAR_S   *eppic_builtin(char *proto, bf_t);/* install a builtin function */
 int      eppic_cmd(char *name, char **argv, int argc); /* execute a command w/ args */
 
 /* load/unload of script files and directories */
-ull	 eppic_load(char *);		/* load/parse a file */
-ull	 eppic_unload(char *);		/* load/parse a file */
-void	 eppic_loadall(void);		/* load all files found in set path */
+ull  eppic_load(char *);        /* load/parse a file */
+ull  eppic_unload(char *);      /* load/parse a file */
+void     eppic_loadall(void);       /* load all files found in set path */
 
 /* variables associated functions */
-VAR_S	*eppic_newvar(char *);		/* create a new static/auto variable */
-void	*eppic_add_globals(VAR_S*);	/* add a set of variable to the globals context */
-VAR_S	*eppic_newvlist(void);		/* create a root for a list of variables */
+VAR_S   *eppic_newvar(char *);      /* create a new static/auto variable */
+void    *eppic_add_globals(VAR_S*); /* add a set of variable to the globals context */
+VAR_S   *eppic_newvlist(void);      /* create a root for a list of variables */
 
-int	 eppic_tryexe(char *, char**, int);/* try to execute a function */
-int	 eppic_parsetype(char*, TYPE_S *, int);/* parse a typedef line */
-ull	 eppic_exefunc(char *, VALUE_S **);/* to execute a function defined in eppic */
+int  eppic_tryexe(char *, char**, int);/* try to execute a function */
+int  eppic_parsetype(char*, TYPE_S *, int);/* parse a typedef line */
+ull  eppic_exefunc(char *, VALUE_S **);/* to execute a function defined in eppic */
 
 /* help related function */
-void	 eppic_showallhelp(void);	/* display help info for all commands */
-int	 eppic_showhelp(char *);		/* display help info for a single command */
+void     eppic_showallhelp(void);   /* display help info for all commands */
+int  eppic_showhelp(char *);        /* display help info for a single command */
 
 /* allocation related function */
-void	*eppic_alloc(int);		/* allocate some memory */
-void	*eppic_calloc(int);		/* allocate some 0 filed memory */
-void	 eppic_free(void*);		/* free it */
-char	*eppic_strdup(char*);		/* equivalent of strdup() returns eppic_free'able char */
-void	*eppic_dupblock(void *p);	/* duplicate the contain of a block of allocated memory */
-void	*eppic_realloc(void *p, int size);	/* reallocate a block */
-void	 eppic_maketemp(void *p);	/* put a block on the temp list */
-void	 eppic_freetemp(void);		/* free the temp list */
-VALUE_S	*eppic_makebtype(ull);		/* create a default base type value (int) */
+void    *eppic_alloc(int);      /* allocate some memory */
+void    *eppic_calloc(int);     /* allocate some 0 filed memory */
+void     eppic_free(void*);     /* free it */
+char    *eppic_strdup(char*);       /* equivalent of strdup() returns eppic_free'able char */
+void    *eppic_dupblock(void *p);   /* duplicate the contain of a block of allocated memory */
+void    *eppic_realloc(void *p, int size);  /* reallocate a block */
+void     eppic_maketemp(void *p);   /* put a block on the temp list */
+void     eppic_freetemp(void);      /* free the temp list */
+VALUE_S *eppic_makebtype(ull);      /* create a default base type value (int) */
 
 /* handle values */
-VALUE_S	*eppic_newval(void);		/* get a new placeholder for a value */
-void	 eppic_freeval(VALUE_S *);	/* free a value* and associated structs */
-VALUE_S	*eppic_makestr(char *);		/* create a string value */
-ull	 eppic_getval(VALUE_S*);		/* transform a random value to a ull */
-VALUE_S	*eppic_cloneval(VALUE_S *);	/* make a clone of a value */
+VALUE_S *eppic_newval(void);        /* get a new placeholder for a value */
+void     eppic_freeval(VALUE_S *);  /* free a value* and associated structs */
+VALUE_S *eppic_makestr(char *);     /* create a string value */
+ull  eppic_getval(VALUE_S*);        /* transform a random value to a ull */
+VALUE_S *eppic_cloneval(VALUE_S *); /* make a clone of a value */
 
 /* array related */
 /* add a new array element to a value */
-void	 eppic_addvalarray(VALUE_S*v, VALUE_S*idx, VALUE_S*val);
+void     eppic_addvalarray(VALUE_S*v, VALUE_S*idx, VALUE_S*val);
 /* return the value associated with a int index */
-VALUE_S	*eppic_intindex(VALUE_S *, int);	
+VALUE_S *eppic_intindex(VALUE_S *, int);    
 /* return the value associated with a 'string' index */
-VALUE_S	*eppic_strindex(VALUE_S *, char *);
+VALUE_S *eppic_strindex(VALUE_S *, char *);
 /* set the value of an array element */
-void	 eppic_setarrbval(ARRAY_S*, int);	
+void     eppic_setarrbval(ARRAY_S*, int);   
 /* get the array element coresponding to index */
-ARRAY_S	*eppic_getarrval(ARRAY_S**, VALUE_S*);
+ARRAY_S *eppic_getarrval(ARRAY_S**, VALUE_S*);
 /* get the initiale array for a variable */
-ARRAY_S	*eppic_addarrelem(ARRAY_S**, VALUE_S*, VALUE_S*); 
+ARRAY_S *eppic_addarrelem(ARRAY_S**, VALUE_S*, VALUE_S*); 
 
 /* type manipulation */
 int eppic_is_struct(int);
@@ -260,7 +260,7 @@ void eppic_member_sname(MEMBER_S*m, char *name);
 /* enums */
 ENUM_S* eppic_add_enum(ENUM_S* e, char* name, int val);
 /* defines */
-DEF_S*	eppic_add_def(DEF_S* d, char *name, char *val);
+DEF_S*  eppic_add_def(DEF_S* d, char *name, char *val);
 
 /* error handling */
 /* display error w/ file/line coordinates */

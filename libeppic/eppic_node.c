@@ -13,42 +13,42 @@
  * GNU General Public License for more details.
  */
 /*
-	These function are use to allocate a new node.
-	It's a layer between the type specific functions and the parser.
+    These function are use to allocate a new node.
+    It's a layer between the type specific functions and the parser.
 */
 #include "eppic.h"
 #include <setjmp.h>
 
 /*
-	Allocate a new node structure
+    Allocate a new node structure
 */
 node_t*
 eppic_newnode()
 {
 node_t*n;
 
-	n = (node_t*) eppic_calloc(sizeof(node_t));
-	TAG(n);
-	return n;
+    n = (node_t*) eppic_calloc(sizeof(node_t));
+    TAG(n);
+    return n;
 }
 
 void
 eppic_free_siblings(node_t*ni)
 {
-	while(ni) {
+    while(ni) {
 
-		node_t*next=ni->next;
+        node_t*next=ni->next;
 
-		NODE_FREE(ni);
+        NODE_FREE(ni);
 
-		ni=next;
-	}
+        ni=next;
+    }
 }
 
 /*
-	This function is called du ring compile time
-	to exevaluate constant expression, like sizeof() and
-	array sizes and enum constant.
+    This function is called du ring compile time
+    to exevaluate constant expression, like sizeof() and
+    array sizes and enum constant.
 */
 value_t *
 eppic_exenode(node_t*n)
@@ -59,22 +59,22 @@ jmp_buf exitjmp;
 void *sa;
 srcpos_t p;
 
-	eppic_curpos(&n->pos, &p);
-	sa=eppic_setexcept();
+    eppic_curpos(&n->pos, &p);
+    sa=eppic_setexcept();
 
-	if(!setjmp(exitjmp)) {
+    if(!setjmp(exitjmp)) {
 
-		eppic_pushjmp(J_EXIT, &exitjmp, &exval);
-		v=NODE_EXE(n);
-		eppic_rmexcept(sa);
-		eppic_popjmp(J_EXIT);
+        eppic_pushjmp(J_EXIT, &exitjmp, &exval);
+        v=NODE_EXE(n);
+        eppic_rmexcept(sa);
+        eppic_popjmp(J_EXIT);
 
-	} else {
+    } else {
 
-		eppic_rmexcept(sa);
-		return 0;
+        eppic_rmexcept(sa);
+        return 0;
 
-	}
-	eppic_curpos(&p, 0);
-	return v;
+    }
+    eppic_curpos(&p, 0);
+    return v;
 }

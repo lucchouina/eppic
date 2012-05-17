@@ -13,14 +13,14 @@
  * GNU General Public License for more details.
  */
 /*
-	Set of functions to handle the case construct.
+    Set of functions to handle the case construct.
 */
 #include "eppic.h"
 
 void
 eppic_freecaseval(caseval_t*cv)
 {
-	eppic_free(cv);
+    eppic_free(cv);
 }
 
 node_t*
@@ -30,21 +30,21 @@ caseval_t*cv=eppic_alloc(sizeof(caseval_t));
 node_t*n=eppic_newnode();
 value_t *v;
 
-	cv->isdef=isdef;
-	if(val) {
+    cv->isdef=isdef;
+    if(val) {
 
-		v=NODE_EXE(val);
-		cv->val=unival(v);
-		eppic_freeval(v);
-		NODE_FREE(val);
+        v=NODE_EXE(val);
+        cv->val=unival(v);
+        eppic_freeval(v);
+        NODE_FREE(val);
 
-	} else cv->val=0;
+    } else cv->val=0;
 
-	eppic_setpos(&cv->pos);
+    eppic_setpos(&cv->pos);
 
-	cv->next=0;
-	n->data=cv;
-	return n;
+    cv->next=0;
+    n->data=cv;
+    return n;
 }
 
 node_t*
@@ -53,9 +53,9 @@ eppic_addcaseval(node_t*n, node_t*n2)
 caseval_t*cv=(caseval_t*)n->data;
 caseval_t*ncv=(caseval_t*)n2->data;
 
-	eppic_free(n);
-	ncv->next=cv;
-	return n2;
+    eppic_free(n);
+    ncv->next=cv;
+    return n2;
 }
 
 void
@@ -63,8 +63,8 @@ eppic_freecase(void *vcl)
 {
 caselist_t*cl=(caselist_t*)vcl;
 
-	NODE_FREE(cl->stmt);
-	eppic_free(cl);
+    NODE_FREE(cl->stmt);
+    eppic_free(cl);
 }
 
 node_t*
@@ -75,18 +75,18 @@ caselist_t*cl=eppic_alloc(sizeof(caselist_t));
 node_t*nn=eppic_newnode();
 
 
-	nn->data=cl;
-	nn->free=(ffct_t)eppic_freecase;
+    nn->data=cl;
+    nn->free=(ffct_t)eppic_freecase;
 
-	cl->vals=cv;
-	eppic_free(nc);
+    cl->vals=cv;
+    eppic_free(nc);
 
-	cl->stmt=n;
-	cl->next=0;
+    cl->stmt=n;
+    cl->next=0;
 
-	eppic_setpos(&cl->pos);
+    eppic_setpos(&cl->pos);
 
-	return nn;
+    return nn;
 }
 
 node_t*
@@ -96,16 +96,16 @@ caselist_t*lcl;
 caselist_t*ncl=(caselist_t*)n2->data;
 caselist_t*cl=(caselist_t*)n->data;
 
-	for(lcl=cl; lcl->next; lcl=lcl->next);
+    for(lcl=cl; lcl->next; lcl=lcl->next);
 
-	/* we need to add case in the order they are listed */
-	lcl->next=ncl;
-	eppic_free(n2);
-	ncl->next=0;
+    /* we need to add case in the order they are listed */
+    lcl->next=ncl;
+    eppic_free(n2);
+    ncl->next=0;
 
-	eppic_setpos(&ncl->pos);
+    eppic_setpos(&ncl->pos);
 
-	return n;
+    return n;
 }
 
 int
@@ -114,23 +114,23 @@ eppic_docase(ull val, caselist_t*cl)
 caselist_t*defclp=0, *clp;
 
 
-	for(clp=cl;clp;clp=clp->next) {
+    for(clp=cl;clp;clp=clp->next) {
 
-	caseval_t*cvp;
+    caseval_t*cvp;
 
-		for(cvp=clp->vals; cvp; cvp=cvp->next) {
+        for(cvp=clp->vals; cvp; cvp=cvp->next) {
 
-			if(cvp->val==val) goto out;
-			else if(cvp->isdef) defclp=clp;
-		}
-	}
+            if(cvp->val==val) goto out;
+            else if(cvp->isdef) defclp=clp;
+        }
+    }
 out:
-	if(clp || (clp=defclp)) {
+    if(clp || (clp=defclp)) {
 
-		for(;clp;clp=clp->next) {
+        for(;clp;clp=clp->next) {
 
-			if(clp->stmt) NODE_EXE(clp->stmt);
-		}
-	}
-	return 1;
+            if(clp->stmt) NODE_EXE(clp->stmt);
+        }
+    }
+    return 1;
 }
