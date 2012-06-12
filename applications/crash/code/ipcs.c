@@ -3,9 +3,9 @@
     shared memory, semaphores and message queues of the entire system
     of a a particular ID (if specified via option -i).
 */
-string ipcs_opt()   { return "mqsai:"; }
-string ipcs_usage() { return "[-mqsa] [-i id]\n"; }
-string ipcs_help()  { return "provide information on ipc facilities\n"; }
+string ipcs2_opt()   { return "mqsai:"; }
+string ipcs2_usage() { return "[-mqsa] [-i id]\n"; }
+string ipcs2_help()  { return "provide information on ipc facilities\n"; }
 
 #include <ipc/util.h>
 #include <shm.h>
@@ -88,7 +88,7 @@ int sem_callback(int mode, struct kern_ipc_perm *ipc, struct ipc_namespace *ns)
     return 1;
 }
 
-int ipcs()
+int ipcs2()
 {
     printf("iflag=%d\n", iflag);
     if(iflag) id=atoi(iarg);
