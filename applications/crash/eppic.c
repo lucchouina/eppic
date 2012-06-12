@@ -578,6 +578,15 @@ static struct linuxdefs_s {
 	{"__LONG_MAX__", "9223372036854775807L"},
 	{"BITS_PER_LONG","64"},
 #endif
+#ifdef __x86_64__
+	{"x86_64",         "1"},
+	{"_x86_64_",       "1"},
+	{"__x86_64__",     "1"},
+	{"__LP64__",     "1"},
+	{"_LONGLONG",    "1"},
+	{"__LONG_MAX__", "9223372036854775807L"},
+	{"BITS_PER_LONG","64"},
+#endif
 #ifdef ppc64
 	{"ppc64",       "1"},
 	{"__ppc64",     "1"},
