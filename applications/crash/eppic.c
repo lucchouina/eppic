@@ -471,7 +471,7 @@ apigetval(char *name, ull *val,  VALUE_S *value)
             sval = evaluate_type (expr);
             type = value_type(sval);
             stype=eppic_gettype(value);
-            apigetrtype((int)type, stype);
+            apigetrtype((ull)type, stype);
             eppic_pushref(stype, 1);
             eppic_setmemaddr(value, *val);
             eppic_do_deref(1, value, value);
