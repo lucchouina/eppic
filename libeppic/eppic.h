@@ -474,7 +474,7 @@ node_t *lastv;
 /* configuration variables */
 #define S_MAXSTRLEN 1024    /* lengh of a STRING variable value_t */
 #define S_MAXDEEP   10000   /* maximum stacking of compound statements calls (runtime) */
-#define S_MAXSDEEP  10      /* maximum depth of nested compound statements (compile) */
+#define S_MAXSDEEP  100     /* maximum depth of nested compound statements (compile) */
 #define S_MAXFILES  200     /* maximum number of macro files  */
 
 #define S_VARARG    "__VARARG" /* name of the special var for ... */
