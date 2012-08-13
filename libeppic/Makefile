@@ -28,6 +28,9 @@ CFLAGS += -O0 -g -fPIC
 ifeq ($(TARGET), PPC64)
 	CFLAGS += -m64
 endif
+ifeq ($(TARGET), ARM)
+	CFLAGS += -m32
+endif
 
 CFILES   = eppic_util.c eppic_node.c eppic_var.c eppic_func.c eppic_str.c \
 	eppic_op.c eppic_num.c eppic_stat.c eppic_builtin.c eppic_type.c \
