@@ -31,6 +31,9 @@ endif
 ifeq ($(TARGET), ARM)
 	CFLAGS += -m32
 endif
+ifeq ($(TARGET), X86)
+  CFLAGS += -m32
+endif
 
 CFILES   = eppic_util.c eppic_node.c eppic_var.c eppic_func.c eppic_str.c \
 	eppic_op.c eppic_num.c eppic_stat.c eppic_builtin.c eppic_type.c \
