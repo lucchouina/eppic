@@ -224,6 +224,8 @@ void eppic_type_setsize(TYPE_S*t, int size);
 int eppic_type_getsize(TYPE_S*t);
 void eppic_type_setidx(TYPE_S*t, ull idx);
 ull eppic_type_getidx(TYPE_S*t);
+/* for backward compatibility */
+#define eppic_typeislocal eppic_type_islocal
 int eppic_type_islocal(TYPE_S*t);
 void eppic_type_setidxlst(TYPE_S*t, int *idxlst);
 void eppic_type_setref(TYPE_S*t, int ref, int type);

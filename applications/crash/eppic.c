@@ -476,7 +476,7 @@ apigetval(char *name, ull *val,  VALUE_S *value)
             eppic_setmemaddr(value, *val);
             eppic_do_deref(1, value, value);
             *val=eppic_getval(value);
-            if(!eppic_typeislocal(stype) && eppic_type_getidx(stype) > 100) {
+            if(!eppic_type_islocal(stype) && eppic_type_getidx(stype) > 100) {
                 char *tname;
                 type=(struct type*)((long)eppic_type_getidx(stype));
                 if(type->main_type) tname=type->main_type->tag_name;

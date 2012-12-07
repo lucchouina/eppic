@@ -35,7 +35,7 @@ static stinfo_t slist={"root"};
 static ull nextidx=0, abitype=ABI_MIPS;
 #define LOCALTYPESBASE 0x8000000000000000ll
 static ull eppic_nextidx(void) { return LOCALTYPESBASE+nextidx++; }
-int eppic_typeislocal(type_t *t) 
+int eppic_type_islocal(type_t *t) 
 { 
     return ((t->idx & LOCALTYPESBASE) != 0); 
 }
