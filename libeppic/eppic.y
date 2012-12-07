@@ -175,8 +175,8 @@ stmtlist:
     ;
 
 stmtgroup:
-    '{' {PUSHV} decl_list stmtlist {POPV} '}'   { $$ = eppic_stat_decl($4, $3); }
-    | '{' {PUSHV} stmtlist {POPV} '}'       { $$ = eppic_stat_decl($3, 0); }
+    '{' {PUSHV;} decl_list stmtlist {POPV;} '}'   { $$ = eppic_stat_decl($4, $3); }
+    | '{' {PUSHV;} stmtlist {POPV;} '}'       { $$ = eppic_stat_decl($3, 0); }
     ;
 
 expstmt:
