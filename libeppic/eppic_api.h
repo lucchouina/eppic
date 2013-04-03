@@ -13,8 +13,10 @@
  * GNU General Public License for more details.
  */
 
-/* minor and major version number */
-#define S_MAJOR 3
+/* minor and major version number 
+    4.0 switch to new Eppic name and use of fully typed symbols.
+*/
+#define S_MAJOR 4
 #define S_MINOR 0
 
 #define MAX_SYMNAMELEN  100
