@@ -298,8 +298,8 @@ int nidx=0;
 		break;
 
 		case TYPE_CODE_INT:
-
-			eppic_parsetype(tstr=TYPE_NAME(type), t, 0);
+			tstr=(char *)TYPE_NAME(type);
+			eppic_parsetype(tstr, t, 0);
 			type=0;
 		break;
 
@@ -323,7 +323,7 @@ int nidx=0;
 label:
 			eppic_type_setsize(t, TYPE_LENGTH(type));
 			eppic_type_setidx(t, (ull)(unsigned long)type);
-			tstr=TYPE_TAG_NAME(type);
+			tstr=(char *)TYPE_TAG_NAME(type);
                         if(tstr) apigetctype(V_STRUCT, tstr, t);
                         type=0;
 		}
@@ -400,7 +400,7 @@ int midx;
 			eppic_member_ssize(m, TYPE_FIELD_TYPE(type, midx)->length);
 			eppic_member_snbits(m, TYPE_FIELD_BITSIZE(type, midx));
 			eppic_member_sfbit(m, TYPE_FIELD_BITPOS(type, midx)%8);
-			eppic_member_sname(m, TYPE_FIELD_NAME(type, midx));
+			eppic_member_sname(m, (char *)TYPE_FIELD_NAME(type, midx));
 			LASTNUM=midx+1;
 			return drilldowntype(TYPE_FIELD_TYPE(type, midx), tm);
 		}
@@ -481,7 +481,7 @@ apigetval(char *name, ull *val,  VALUE_S *value)
             if(!eppic_type_islocal(stype) && eppic_type_getidx(stype) > 100) {
                 char *tname;
                 type=(struct type*)((long)eppic_type_getidx(stype));
-                if(type->main_type) tname=type->main_type->tag_name;
+                if(type->main_type) tname=(char *)type->main_type->tag_name;
                 if(tname) eppic_chktype(stype, tname);
             }
             do_cleanups (old_chain);
@@ -509,7 +509,7 @@ apigetenum(char *name)
         struct type *type=sym->type;
         int n=0;
 	while(n < TYPE_NFIELDS (type)) {
-      	    et=eppic_add_enum(et, eppic_strdup(TYPE_FIELD_NAME(type, n)), TYPE_FIELD_BITPOS(type, n));
+      	    et=eppic_add_enum(et, eppic_strdup((char*)TYPE_FIELD_NAME(type, n)), TYPE_FIELD_BITPOS(type, n));
             n++;
 	}
         return et;

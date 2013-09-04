@@ -50,8 +50,8 @@ static struct opss {
 
 static char *typtbl[] = { "sc", "uc", "ss", "us", "sl", "ul", "sll", "ull" };
 
-#define NOPS (sizeof(opstbl)/sizeof(opstbl[0]))
-#define NTYPS (sizeof(typtbl)/sizeof(typtbl[0]))
+#define NOPS ((unsigned int)(sizeof(opstbl)/sizeof(opstbl[0])))
+#define NTYPS ((unsigned int)(sizeof(typtbl)/sizeof(typtbl[0])))
 
 int
 main()
