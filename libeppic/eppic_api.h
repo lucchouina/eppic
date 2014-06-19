@@ -29,6 +29,7 @@
 #define ABI_S390        4
 #define ABI_S390X       5
 #define ABI_PPC64   6
+#define ABI_ARM64   7
 
 /* types of variables */
 #define V_BASE          1

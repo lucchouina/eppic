@@ -1035,7 +1035,11 @@ _init() /* Register the command set. */
 #ifdef PPC64
 #define EPPIC_ABI  ABI_PPC64
 #else
+#ifdef ARM64
+#define EPPIC_ABI  ABI_ARM64
+#else
 #error eppic: Unkown ABI 
+#endif
 #endif
 #endif
 #endif
