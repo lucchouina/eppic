@@ -173,9 +173,9 @@ static int dir=0;
 }
 
 void
-eppic_caller(char *p, void *retaddr)
+eppic_caller(void *p, void *retaddr)
 {
-blist *bl=(blist*)(((char*)p)-SIZEBL);
+blist *bl=(blist*)(p-SIZEBL);
 
     bl->caller=retaddr;
 }

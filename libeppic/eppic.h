@@ -334,6 +334,7 @@ void  eppic_popallin(void);
 void  eppic_tagst(void);
 void  eppic_flushtdefs(void);
 void  eppic_setsvlev(int newlev);
+void  eppic_setvlev(int lev);
 void  eppic_flushmacs(void *tag);
 void  eppic_add_auto(var_t*nv);
 void *eppic_chkbuiltin(char *name);
@@ -352,6 +353,7 @@ void  eppic_baseop(int op, value_t *v1, value_t *v2, value_t *result);
 void  eppic_setinsizeof(int v);
 void  eppic_freeidx(idx_t *idx);
 void  eppic_freedvar(dvar_t*dv);
+void  eppic_caller(void *p, void *retaddr);
 void  eppic_pushenums(enum_t *et);
 void  eppic_addfunc_ctype(int idx);
 void  eppic_setapiglobs(void);
@@ -367,9 +369,9 @@ void  eppic_addtolist(var_t*vl, var_t*v);
 void  eppic_arch_swapvals(void* vp, void *sp);
 void  eppic_fillst(stinfo_t *st);
 void  eppic_exememlocal(value_t *vp, stmember_t* stm, value_t *v);
-void  eppic_do_deref(int n, value_t *v, value_t *ref);
-void  eppic_addneg(char *name);
 void  eppic_print_type(type_t *t);
+void  eppic_vpush();
+void  eppic_vpop();
 
 stmember_t*eppic_member(char *mname, type_t*tp);
 
@@ -445,6 +447,7 @@ int   eppic_isenum(int atr);
 int   eppic_funcexists(char *name);
 int   eppic_isnew(void* p);
 int   eppic_isneg(char *name);
+int   eppicpperror(char *s);
 
 char  *eppic_vartofunc(node_t *name);
 char  *eppic_gettdefname(ull idx);
@@ -456,6 +459,7 @@ char  *eppic_cursorp(void);
 char  *eppic_getbtypename(int typattr);
 char  *eppic_filename(void);
 char  *eppic_curp(char *);
+char  *eppic_getipath(void);
 
 type_t  *eppic_typeof(node_t *n);
 type_t  *eppic_newctype(int ctype_t, node_t *n);

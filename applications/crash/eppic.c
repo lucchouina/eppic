@@ -54,6 +54,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <eppic_api.h>
 
@@ -1003,7 +1004,7 @@ unsigned long get_curtask();
     return eppic_makebtype((ull)get_curtask());
 }
 
-_init() /* Register the command set. */
+int _init() /* Register the command set. */
 { 
 #define LCDIR "/usr/share/eppic/crash"
 #define LCIDIR "include"

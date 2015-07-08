@@ -208,7 +208,10 @@ void     eppic_setarrbval(ARRAY_S*, int);
 /* get the array element coresponding to index */
 ARRAY_S *eppic_getarrval(ARRAY_S**, VALUE_S*);
 /* get the initiale array for a variable */
-ARRAY_S *eppic_addarrelem(ARRAY_S**, VALUE_S*, VALUE_S*); 
+ARRAY_S *eppic_addarrelem(ARRAY_S**, VALUE_S*, VALUE_S*);
+/* dereference a pointer to its value */
+void  eppic_do_deref(int n, VALUE_S* v, VALUE_S* ref);
+void  eppic_addneg(char *name);
 
 /* type manipulation */
 int eppic_is_struct(int);

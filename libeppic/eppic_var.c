@@ -828,6 +828,7 @@ var_t*v;
     evaluation of sizeof or typeof.
 */
 int eppic_getvlev() { return vlev; }
+void
 eppic_vpush()
 {
     if(vlev==S_MAXSDEEP) {
@@ -841,6 +842,7 @@ eppic_vpush()
     }
 }
 
+void
 eppic_vpop()
 {
     if(vlev) {

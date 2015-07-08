@@ -23,6 +23,7 @@
 #include <setjmp.h>
 #include <pwd.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* here we do some caching of the information. This can have a speedup effect
    since it limits the number of accesses we do the dwarf (or whatever type) db that
