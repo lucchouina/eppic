@@ -16,6 +16,9 @@
  * information.
  */
 
+/* unistd.h must appear before gdb includes in order for getopt() prototype definition to get included */
+#include <unistd.h>
+
 #include "gdb/defs.h"
 #include "target.h"
 #include "symtab.h"
@@ -54,7 +57,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <eppic_api.h>
 
