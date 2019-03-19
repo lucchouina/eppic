@@ -24,7 +24,7 @@ LDIRT    = lex.eppic.c lex.eppicpp.c eppic.tab.c eppic.tab.h eppicpp.tab.c \
 LIBDIR	 = /usr/lib
 TARGETS  = libeppic.a
 
-CFLAGS += -g -fPIC
+CFLAGS += -g -fno-omit-frame-pointer -fPIC
 ifeq ($(TARGET), PPC64)
 	CFLAGS += -m64
 endif
