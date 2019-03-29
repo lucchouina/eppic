@@ -399,6 +399,7 @@ is_hex(char *c)
 
 /*
    	Return the name of a symbol at an address (if any)
+        Or return the address of a symbol
 */
 static char*
 apifindsym(char *p)
@@ -427,26 +428,6 @@ apifindsym(char *p)
 		}
 	}
 }
-
-/*
-	Return the value of a symbol (given its name)
-*/
-static char*
-apisymval(char *p)
-{
-	struct syment *syp;
-	ulong value, offset;
-
-	syp = symbol_search(p);
-	if (syp) {
-		sprintf(findsym_namebuf, "%s+%#x", syp->name, value - syp->value);
-		return (char *)findsym_namebuf;
-	} else {
-		findsym_namebuf[0] = 0;
-		return (char *)findsym_namebuf;
-	}
-}
-
 
 /* 
 	Get the type, size and position information for a member of a structure.
