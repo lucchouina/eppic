@@ -95,7 +95,19 @@ extern int symbol_exists(char *);
 extern ulong symbol_value(char *);
 extern void cmd_usage(char *, int);
 extern void register_extension(struct command_table_entry *);
-
+/* this definition of syment must match that in crash's defs.h */
+struct syment {
+	ulong value;
+	char *name;
+	struct syment *val_hash_next;
+	struct syment *name_hash_next;
+	char type;
+	unsigned char cnt;
+	unsigned char flags;
+	unsigned char pad2;
+};
+extern struct syment *value_search(ulong value, ulong *offset);
+char findsym_namebuf[100];
 
 //
 /////////////////////////////////////////////////////////////////////////
@@ -359,15 +371,63 @@ apigetrtype(ull idx, TYPE_S *t)
 	return drilldowntype((struct type*)(unsigned long)(idx), t);
 }
 
+/* test a string for being a hex number */
+static int
+is_hex(char *c)
+{
+	char *cp = c;
+
+	if (*cp == '0' && (*(cp+1) == 'x' || *(cp+1) == 'X'))
+		return 1;
+	while (*cp != '\0') {
+		if ((*cp >= 'a') && (*cp <= 'f')) {
+			cp++;
+			continue;
+		}
+		if ((*cp >= 'A') && (*cp <= 'F')) {
+			cp++;
+			continue;
+		}
+		if ((*cp >= '0') && (*cp <= '9')) {
+			cp++;
+			continue;
+		}
+		return 0;
+	}
+	return 1;
+}
+
 /*
    	Return the name of a symbol at an address (if any)
+        Or return the address of a symbol
 */
 static char*
 apifindsym(char *p)
 {
-    return NULL;
-}
+	struct syment *syp;
+	ulong value, offset;
 
+	if (is_hex(p)) {
+		value = strtoull(p, 0, 16);
+		syp = value_search(value, (ulong *)&offset);
+		if (syp) {
+			sprintf(findsym_namebuf, "%s+%#x", syp->name, value - syp->value);
+			return (char *)findsym_namebuf;
+		} else {
+			findsym_namebuf[0] = 0;
+			return (char *)findsym_namebuf;
+		}
+	} else {
+		syp = symbol_search(p);
+		if (syp) {
+			sprintf(findsym_namebuf, "%#lx", syp->value);
+			return (char *)findsym_namebuf;
+		} else {
+			findsym_namebuf[0] = 0;
+			return (char *)findsym_namebuf;
+		}
+	}
+}
 
 /* 
 	Get the type, size and position information for a member of a structure.
