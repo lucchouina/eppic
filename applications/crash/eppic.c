@@ -853,9 +853,6 @@ char *edit_help[]={
 };
 
 
-// these control debug mode when parsing (pre-processor and compile)
-int eppicdebug, eppicppdebug;
-
 void
 load_cmd(void)
 {
