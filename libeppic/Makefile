@@ -104,7 +104,7 @@ default: $(TARGETS)
 $(CFILES): $(HFILES) eppic.tab.h
 
 $(TARGETS): $(OFILES)
-	$(AR) ccurl $(TARGETS) $(OFILES)
+	$(AR) cur $(TARGETS) $(OFILES)
 
 clean: 
 	-/bin/rm -f *.o $(TARGETS) $(LDIRT)
