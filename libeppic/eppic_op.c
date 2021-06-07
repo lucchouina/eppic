@@ -694,6 +694,8 @@ doop:
             value_t *vp;
 
             eppic_free(name);
+            
+            if(!va) eppic_error("Variable is undefined '%s'", name);
 
             if(top != o->op) vp=v;
             else vp=V2;

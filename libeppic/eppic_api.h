@@ -17,7 +17,7 @@
     4.0 switch to new Eppic name and use of fully typed symbols.
 */
 #define S_MAJOR 4
-#define S_MINOR 0
+#define S_MINOR 1
 
 #define MAX_SYMNAMELEN  100
 #define MAXIDX      20
@@ -188,7 +188,7 @@ void    *eppic_realloc(void *p, int size);  /* reallocate a block */
 void     eppic_maketemp(void *p);   /* put a block on the temp list */
 void     eppic_freetemp(void);      /* free the temp list */
 VALUE_S *eppic_makebtype(ull);      /* create a default base type value (int) */
-
+void    eppic_setmemdebug(int on);  /* turn memory debug on / off */
 /* handle values */
 VALUE_S *eppic_newval(void);        /* get a new placeholder for a value */
 void     eppic_freeval(VALUE_S *);  /* free a value* and associated structs */

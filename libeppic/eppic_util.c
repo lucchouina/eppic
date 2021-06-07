@@ -553,9 +553,12 @@ for(i=0;i<NMATCH;i++) {
                             goto def;
                         default:
 def:
-                        if(ptrto(addit[i])) {
-                            strcpy(onefmt, ptrto(addit[i]));
-                            onefmt+=matchlen(addit[i]);
+                        {
+                            char *p;
+                            if((p=ptrto(addit[i]))) {
+                                    strcpy(onefmt, p);
+                                    onefmt+=matchlen(addit[i]);
+                            }
                         }
                     }
                 }
@@ -586,14 +589,14 @@ ref:
                 } else if(*p=='>') { 
 
                     nfmt--;
-                    if(eppic_defbsize()==8) {
+                    if(sizeof(void*)==8) {
 
                         int i;
 
                         for(i=0;i<8;i++) *nfmt++=last;
                     }
                     p++;
-                                        curarg--;
+                    curarg--;
 
                 } else if(*p=='?') {
 
@@ -811,7 +814,7 @@ int i,j;
 static void
 eppic_dbg_all(int class, char *name, int lvl, char *fmt, va_list ap)
 {
-    if(lvl<=dbglvl && (clist & class) && (!dbg_name || !strcmp(name, dbg_name))) {
+    if(lvl<=dbglvl && (clist & class) && (!dbg_name || (name && !strcmp(name, dbg_name)))) {
         printf("dbg(%d) : ", lvl);
         vprintf(fmt, ap);
     }

@@ -401,6 +401,7 @@ is_hex(char *c)
    	Return the name of a symbol at an address (if any)
         Or return the address of a symbol
 */
+struct syment * symbol_search(char *p);
 static char*
 apifindsym(char *p)
 {
@@ -411,7 +412,7 @@ apifindsym(char *p)
 		value = strtoull(p, 0, 16);
 		syp = value_search(value, (ulong *)&offset);
 		if (syp) {
-			sprintf(findsym_namebuf, "%s+%#x", syp->name, value - syp->value);
+			sprintf(findsym_namebuf, "%s+%#lx", syp->name, value - syp->value);
 			return (char *)findsym_namebuf;
 		} else {
 			findsym_namebuf[0] = 0;
@@ -600,6 +601,7 @@ static struct linuxdefs_s {
 
 } linuxdefs[] = {
 
+	{"CURTASK",		"(struct task_struct*)curtask()"},
 	{"crash",		"1"},
 	{"linux",		"1"},
 	{"__linux",		"1"},
@@ -1167,7 +1169,7 @@ int _init() /* Register the command set. */
                 register_extension(command_table);
                 
                 /* some builtins */
-        	eppic_builtin("int curtask()", curtask);
+        	eppic_builtin("unsigned long curtask()", curtask);
                 
                 fprintf(fp, "Done.\n");
 	} 

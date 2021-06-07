@@ -100,7 +100,7 @@ function:
 
 
 for:
-    FOR '(' opt_termlist ';' opt_term ';' opt_termlist ')' expstmt
+    FOR '(' opt_termlist ';' opt_termlist ';' opt_termlist ')' expstmt
                     { $$ = eppic_newstat(FOR, 4, $3, $5, $7, $9); }
     | FOR '(' var IN term ')' expstmt
                     { $$ = eppic_newstat(IN, 3, $3, $5, $7); }

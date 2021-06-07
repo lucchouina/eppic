@@ -93,25 +93,29 @@ SETVS;
         v1=eppic_exeplist(P1);
         FV1;
 
-        while(!P2 || eppic_bool(V2)) {
+        while(1) {
+            v2=eppic_exeplist(P2);
+            if(!P2 || eppic_bool(V2)) {
 
-            FV2;
+                FV2;
 
-            if(!setjmp(cntenv)) {
+                if(!setjmp(cntenv)) {
 
-                eppic_pushjmp(J_CONTINUE, &cntenv, 0);
-                V4;
-                FV4;
-                eppic_popjmp(J_CONTINUE);
+                    if(P4) {
+                        eppic_pushjmp(J_CONTINUE, &cntenv, 0);
+                        V4;
+                        FV4;
+                        eppic_popjmp(J_CONTINUE);
+                    }
+                }
 
+                UNSETVS; /* make sure we re-execute everything each time */
+                v3=eppic_exeplist(P3);
+                FV3;
             }
-            
-            UNSETVS; /* make sure we re-execute everything each time */
-            v3=eppic_exeplist(P3);
-            FV3;
+            else break;
         }
         eppic_popjmp(J_BREAK);
-        
     }
     UNSETVS;
     return 1;

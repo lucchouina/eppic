@@ -1141,6 +1141,19 @@ eppic_valindex(value_t *var, value_t *idx, value_t *ret)
 
         eppic_error("Invalid indexing type");
 
+    } else if(VAL_TYPE(var) == V_STRING) {
+        
+        /* extract char form string */
+        int i;
+        value_t *v;
+        switch(idx->type.type) {
+        case V_BASE: i=(unival(idx)); break;
+        default:
+            eppic_error("Invalid index type %d", idx->type.type);
+        }
+        if(i>=var->type.size) eppic_error("Out of bound index %d (max %d)", i, var->type.size);
+        eppic_defbtypesize(ret, ((char*)var->v.data)[i], B_UC);
+
     } else {
 
         array_t*a;
@@ -1234,12 +1247,12 @@ srcpos_t pos;
 
     if(!(curv=eppic_getvarbyname(vn->name, 0, 0))) {
 
-        eppic_error("Oops! Var ref1.[%s]", vn->name);
+        eppic_rerror(&pos, "undefined variable '%s'", vn->name);
 
     }
     if(!curv->ini && !insizeof && !vlev) {
 
-        eppic_error("Variable [%s] used before being initialized", curv->name);
+        eppic_rerror(&pos, "Variable [%s] used before being initialized", curv->name);
 
     }
 
@@ -1261,6 +1274,7 @@ eppic_setini(node_t*n)
     if((void*)n->exe == (void*)eppic_exevar) {
 
         var_t*v=eppic_getvarbyname(((vnode_t*)(n->data))->name, 0, 0);
+        if(!v) eppic_error("Variable '%s' is undefined", ((vnode_t*)(n->data))->name);
         v->ini=1;
     }
 }

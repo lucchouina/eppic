@@ -416,7 +416,7 @@ ull idx=st->ctype.idx, lidx=0;
 stmember_t *stm=eppic_calloc(sizeof(stmember_t)), **last=&st->stm;
 char *pname;
 
-        eppic_dbg_named(DBG_STRUCT, st->name, 2, "Fill St started [local=%d].\n", (idx & LOCALTYPESBASE) ? 1 : 0);
+    eppic_dbg_named(DBG_STRUCT, st->name, 2, "Fill St started [local=%d].\n", (idx & LOCALTYPESBASE) ? 1 : 0);
     /* bail out if this is local type */
     if(idx & LOCALTYPESBASE) return;
 
@@ -590,33 +590,43 @@ char *name=eppic_lastvar();
     Check to see if a cached member info is available
 */
 static stmember_t*
-eppic_getm(char *name, type_t*tp, stinfo_t**sti)
+eppic_getm_idx(char *name, ull idx, stinfo_t**sti, int offset)
 {
-ull idx=tp->idx;
 stinfo_t*st;
 stmember_t*stm;
-
     for(st=slist.next; st; st=st->next) {
 
         if(st->idx == idx) {
 
-            *sti=st;
+            if(sti) *sti=st;
 
-            if(!st->stm) eppic_fillst(st);
-
-            for(stm=st->stm; stm; stm=stm->next) {
-
-
-                if(!strcmp(stm->m.name, name)) {
-
-                    return stm;
-
+            if(!st->stm) {
+                eppic_fillst(st);
+                /* for unnamed structures we add the offset within the parent */
+                for(stm=st->stm; stm; stm=stm->next) {
+                    stm->m.offset+=offset;
                 }
+            }
+            
+            for(stm=st->stm; stm; stm=stm->next) {
+                /* if the struct is unamed (unamed member), we try to match that member in that struct */
+                if(!strlen(stm->m.name)) {
+                    stmember_t *ustm=eppic_getm_idx(name, stm->type.idx, sti, stm->m.offset);
+                    if(ustm) return ustm;
+                }
+                else if(!strcmp(stm->m.name, name)) return stm;
             }
         }
     }
     return 0;
 }
+
+static stmember_t*
+eppic_getm(char *name, type_t*tp, stinfo_t**sti)
+{
+    return eppic_getm_idx(name, tp->idx, sti, 0);
+}
+
 
 value_t *
 eppic_ismember(value_t*vp, value_t*vm)
