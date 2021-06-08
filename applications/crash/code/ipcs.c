@@ -90,39 +90,38 @@ int sem_callback(int mode, struct kern_ipc_perm *ipc, struct ipc_namespace *ns)
 
 int ipcs2()
 {
-    printf("iflag=%d\n", iflag);
     if(iflag) id=atoi(iarg);
-    printf("iflag=%d id=%d\n", iflag, id);
     if(aflag || mflag) for_all_ipc_shm("shm_callback");
     if(aflag || sflag) for_all_ipc_sem("sem_callback");
     if(aflag || qflag) for_all_ipc_msg("msg_callback");
+    if(!iflag && !aflag && (!(mflag || sflag || qflag))) printf("usage: ipcs2 %s", ipcs2_usage());
     return 1;
 }
 
 int for_all_ipc_ids(struct ipc_namespace *ns, struct ipc_ids *ids, string ipc_cb)
 {
     struct kern_ipc_perm *ipc;
-	int max_id = -1;
-	int total, id;
+    int max_id = -1;
+    int total, id;
     ipc_cb(0, 0, 0);
-	if (ids->in_use == 0)
-		return max_id;
+    if (ids->in_use == 0)
+        return max_id;
 
-	if (ids->in_use == IPCMNI)
-		return IPCMNI - 1;
+    if (ids->in_use == IPCMNI)
+        return IPCMNI - 1;
 
-	/* Look for the last assigned id */
-	total = 0;
-	for (id = 0; id < IPCMNI && total < ids->in_use; id++) {
-		ipc = idr_find(&ids->ipcs_idr, id);
-		if (ipc != NULL) {
-			max_id = id;
-			total++;
+    /* Look for the last assigned id */
+    total = 0;
+    for (id = 0; id < IPCMNI && total < ids->in_use; id++) {
+        ipc = idr_find(&ids->ipcs_idr, id);
+        if (ipc != NULL) {
+            max_id = id;
+            total++;
             if(!ipc_cb(1, ipc, ns)) break;
-		}
-	}
+        }
+    }
     ipc_cb(2, 0, 0);
-	return max_id;
+    return max_id;
 }
 
 void for_all_ipc_shm(string ipc_cb)

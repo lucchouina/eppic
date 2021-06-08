@@ -8,7 +8,8 @@ enum {
 };
 
 /* extensive use of prefetch. Eliminate from parsing. */
-#define prefetch(x)
+
+#define prefetch(x) (1)
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 

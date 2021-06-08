@@ -62,10 +62,10 @@ static inline int list_is_singular(const struct list_head *head)
  * @ptr:	the &struct list_head pointer.
  * @type:	the type of the struct this is embedded in.
  * @member:	the name of the list_struct within the struct.
- */
+*/
 #define list_entry(ptr, type, member) \
 	container_of(ptr, type, member)
-
+ 
 /**
  * list_first_entry - get the first element from a list
  * @ptr:	the list head to take the element from.
@@ -137,7 +137,7 @@ static inline int list_is_singular(const struct list_head *head)
  */
 #define list_for_each_entry(pos, head, member)				\
 	for (pos = list_entry((head)->next, typeof(*pos), member);	\
-	     prefetch(pos->member.next), &pos->member != (head); 	\
+	     prefetch(pos->prev) && &pos->member != (head); 	\
 	     pos = list_entry(pos->member.next, typeof(*pos), member))
 
 /**
