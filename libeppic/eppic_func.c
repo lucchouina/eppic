@@ -776,7 +776,7 @@ eppic_getnxtfct(void)
 
             int l=strlen(nxtfunc->name);
 
-            if(l > 5) {
+            if(MAX_SYMNAMELEN-5 > l > 5 ) {
 
                 if(!strcmp(nxtfunc->name+l-5, "_help")) {
 

@@ -44,7 +44,7 @@
 #define ENUM_S      struct enum_s
 #define DEF_S       struct def_s
 #define MEMBER_S    struct member_s
-#define TYPE_S      struct type_s
+#define TYPE_S      struct typeX_s
 #define VALUE_S     struct value_s
 #define ARRAY_S     struct array_s
 #define NODE_S      struct node_s
@@ -73,22 +73,19 @@ typedef unsigned long ul;
 /* THe API function calls numbers */
 typedef struct {
 
-    int (*getmem)(ull, void *, int);        /* write to system image */
-    int (*putmem)(ull, void *, int);        /* read from system image */
-    char* (*member)(char *, ull, TYPE_S *   /* get type and positional information ... */
-        , MEMBER_S *, ull *lidx);           /* ... about the member of a structure */
-    int (*getctype)(int ctype, char *       /* get struct/union type information */
-        , TYPE_S*); 
-    char* (*getrtype)(ull, TYPE_S *);       /* get complex type information */
-    int (*alignment)(ull);                  /* get alignment value for a type */
-    int (*getval)(char *, ull *, VALUE_S *);/* get the value of a system variable */
-    ENUM_S* (*getenum)(char *name);         /* get the list of symbols for an enum type */
-    DEF_S*  (*getdefs)(void);               /* get the list of compiler pre-defined macros */
-    uint8_t (*get_uint8)(void*);
-    uint16_t (*get_uint16)(void*);
-    uint32_t (*get_uint32)(void*);
-    uint64_t (*get_uint64)(void*);
-    char* (*findsym)(char*);
+    int         (*getmem)(ull, void *, int);        /* write to system image */
+    int         (*putmem)(ull, void *, int);        /* read from system image */
+    int         (*member)(char *, char *, void **); /* Get a members of a struct/union */
+    int         (*getctype)(int ctype, char *, TYPE_S*); /* get struct/union type information */
+    char*       (*getrtype)(char*, TYPE_S *);       /* get complex type information */
+    int         (*getval)(char *, ull *addr, VALUE_S *);/* get the value of a system variable */
+    int         (*getenum)(char *name, ENUM_S *);   /* get the list of values for an enum type */
+    DEF_S*      (*getdefs)(void);                   /* get the list of compiler pre-defined macros */
+    uint8_t     (*get_uint8)(void*);
+    uint16_t    (*get_uint16)(void*);
+    uint32_t    (*get_uint32)(void*);
+    uint64_t    (*get_uint64)(void*);
+    char*       (*findsym)(char*);
 } apiops; 
 
 /*
@@ -123,12 +120,12 @@ typedef struct btspec {
 extern apiops *eppic_ops;
 #define API_GETMEM(i, p, n) ((eppic_ops->getmem)((i), (p), (n)))
 #define API_PUTMEM(i, p, n) ((eppic_ops->putmem)((i), (p), (n)))
-#define API_MEMBER(n, i, tm, m, l)  ((eppic_ops->member)((n), (i), (tm), (m), (l)))
+#define API_MEMBER(n, mn, s)((eppic_ops->member)((n), (mn), (s)))
 #define API_GETCTYPE(i, n, t)   ((eppic_ops->getctype)((i), (n), (t)))
 #define API_GETRTYPE(i, t)  ((eppic_ops->getrtype)((i), (t)))
 #define API_ALIGNMENT(i)    ((eppic_ops->alignment)((i)))
-#define API_GETVAL(n, v, val)   ((eppic_ops->getval)((n), (v), (val)))
-#define API_GETENUM(n)      ((eppic_ops->getenum)(n))
+#define API_GETVAL(n,a, val)   ((eppic_ops->getval)((n), (a), (val)))
+#define API_GETENUM(n, e)      ((eppic_ops->getenum)(n, e))
 #define API_GETDEFS()       ((eppic_ops->getdefs)())
 #define API_GET_UINT8(ptr)  ((eppic_ops->get_uint8)(ptr))
 #define API_GET_UINT16(ptr) ((eppic_ops->get_uint16)(ptr))
@@ -182,7 +179,7 @@ int  eppic_showhelp(char *);        /* display help info for a single command */
 void    *eppic_alloc(int);      /* allocate some memory */
 void    *eppic_calloc(int);     /* allocate some 0 filed memory */
 void     eppic_free(void*);     /* free it */
-char    *eppic_strdup(char*);       /* equivalent of strdup() returns eppic_free'able char */
+char    *eppic_strdup(const char*); /* equivalent of strdup() returns eppic_free'able char */
 void    *eppic_dupblock(void *p);   /* duplicate the contain of a block of allocated memory */
 void    *eppic_realloc(void *p, int size);  /* reallocate a block */
 void     eppic_maketemp(void *p);   /* put a block on the temp list */
@@ -229,6 +226,7 @@ void eppic_vi(char *fname, int file);
 void eppic_type_setsize(TYPE_S*t, int size);
 int eppic_type_getsize(TYPE_S*t);
 void eppic_type_setidx(TYPE_S*t, ull idx);
+void eppic_type_setidxbyname(TYPE_S *t, char *name);
 ull eppic_type_getidx(TYPE_S*t);
 /* for backward compatibility */
 #define eppic_typeislocal eppic_type_islocal
@@ -242,6 +240,7 @@ void eppic_type_mkstruct(TYPE_S*t);
 void eppic_type_mktypedef(TYPE_S*t);
 TYPE_S*eppic_newtype(void);
 void eppic_freetype(TYPE_S*t);
+void eppic_inttype(TYPE_S *t, ull size);
 TYPE_S*eppic_getctype(int ctype_t, char *name, int silent);
 void eppic_type_free(TYPE_S* t);
 void eppic_pushref(TYPE_S*t, int ref);
@@ -257,13 +256,16 @@ void eppic_setclass(char *class);
 char **eppic_getclass(void);
 void eppic_setmemaddr(VALUE_S*, ull mem);
 TYPE_S*eppic_gettype(VALUE_S *v);
+void *eppic_stm_type(void **stmp);
+void eppic_member_info(void **stmp, long, long, long, long);
 
 /* struct member functions */
 void eppic_member_soffset(MEMBER_S*m, int offset);
 void eppic_member_ssize(MEMBER_S*m, int size);
 void eppic_member_sfbit(MEMBER_S*m, int fbit);
 void eppic_member_snbits(MEMBER_S*m, int nbits);
-void eppic_member_sname(MEMBER_S*m, char *name);
+void eppic_new_member(void **stmp, char *name);
+void eppic_member_setidx(void **stmp, TYPE_S *t);
 
 /* enums */
 ENUM_S* eppic_add_enum(ENUM_S* e, char* name, int val);

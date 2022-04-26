@@ -49,8 +49,38 @@ void eppic_member_soffset(member_t*m, int offset) { m->offset=offset; }
 void eppic_member_ssize(member_t*m, int size) { m->size=size; }
 void eppic_member_sfbit(member_t*m, int fbit) { m->fbit=fbit; }
 void eppic_member_snbits(member_t*m, int nbits) { m->nbits=nbits; }
-void eppic_member_sname(member_t*m, char *name) { m->name=eppic_strdup(name); }
+void eppic_member_setidx(void **stmp, type_t *t)
+{
+    stmember_t *stm=(stmember_t*)(*stmp);
+    eppic_dbg(DBG_ALL, 2, "Setting idx of type %p to stm %p name '%s' to %p", t, stm, stm->m.name, t->idx);
+    stm->type.idx=t->idx;
+}
 
+void eppic_new_member(void **stmp, char *name)
+{
+    stmember_t *stm=eppic_calloc(sizeof *stm);
+    eppic_dbg(DBG_ALL, 2, "New member [%s]...", name);
+    stm->next=*stmp;
+    *stmp=stm;
+    stm->m.name=eppic_strdup(name);
+}
+
+/* called by the API in sequence after eppic_new_member() */
+void eppic_member_info(void **stmp, long offset, long size, long fbit, long nbits)
+{
+    stmember_t *stm=*(stmember_t**)stmp;
+    eppic_dbg(DBG_ALL, 2, "New member [%s] info [%ld(%ld) %ld %ld %ld]...", stm->m.name, offset, (offset/8), size, fbit, nbits);
+    eppic_member_soffset(&stm->m,    offset);
+    eppic_member_ssize(&stm->m,      size);
+    eppic_member_sfbit(&stm->m,      fbit);
+    eppic_member_snbits(&stm->m,     nbits);
+}
+
+void *eppic_stm_type(void **stmpp)
+{
+    stmember_t *stmp=*(stmember_t **)stmpp;
+    return &stmp->type;
+}
 
 void
 eppic_setmem(mem *m, value_t *v)
@@ -200,8 +230,6 @@ stmember_t*stm;
 srcpos_t p;
 
     eppic_curpos(&m->p, &p);
-    
-
 
     if(vp->type.type == V_REF) {
 
@@ -239,6 +267,7 @@ srcpos_t p;
         m->local=0;
         m->mem=eppic_defbsize()==8?vp->v.ull:vp->v.ul;
         mempos=m->mem+stm->m.offset;
+        eppic_dbg(DBG_ALL, 2, "exemem[%d] @ %p [st %p moffset %d(%08x)]", TYPE_SIZE(&stm->type), mempos, m->mem, stm->m.offset, stm->m.offset);
 
         /* get that value_t from the system image */
         if(is_ctype(v->type.type) && !stm->type.idxlst) {
@@ -286,7 +315,7 @@ srcpos_t p;
                     API_GETMEM(mempos, &v->v.ull, 8);
                 break;
                 default:
-                    eppic_error("Oops exemem[%d]", TYPE_SIZE(&stm->type));
+                    eppic_error("Oops exemem[%d] @ %p", TYPE_SIZE(&stm->type), mempos);
                 break;
             }
 

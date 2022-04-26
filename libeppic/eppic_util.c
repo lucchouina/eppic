@@ -815,8 +815,10 @@ static void
 eppic_dbg_all(int class, char *name, int lvl, char *fmt, va_list ap)
 {
     if(lvl<=dbglvl && (clist & class) && (!dbg_name || (name && !strcmp(name, dbg_name)))) {
-        printf("dbg(%d) : ", lvl);
+        eppic_setlastfile(filename, eppic_line(0));
+        printf("%s : line %d : Debug:", filename, lineno);
         vprintf(fmt, ap);
+        if(fmt[0] && fmt[strlen(fmt)-1] != '\n') printf("\n");
     }
 }
 

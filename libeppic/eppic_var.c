@@ -112,7 +112,7 @@ var_t*var;
 
     /* reset ref level for tests below */
     eppic_popref(t, t->ref);
-
+    
     TAG(vlist);
 
     if(!t->type) {
@@ -139,7 +139,7 @@ var_t*var;
 
     while(dv) {
         
-        /* disalow var names that match against already defined vars */
+        /* disalow var names that match against already defined vars 
         if(dv->name[0]) {
             type_t *t=eppic_getctype(V_TYPEDEF, dv->name, 1);
             if(t) {
@@ -191,6 +191,7 @@ var_t*var;
 
         t->fct=dv->fct;
         eppic_duptype(&var->v->type, t);
+
         eppic_pushref(&var->v->type, dv->ref);
 
         var->dv=dv;
@@ -666,12 +667,8 @@ ull apiv, mem;
         if(!strncmp(name, "IMG_", 4)) off=4;
         if(!local) {
             vp=eppic_newvar(name);
-            if(API_GETVAL(name+off, &apiv, eppic_legacy?0:vp->v)) {
+            if(API_GETVAL(name+off, NULL, vp->v)) {
                 vp->ini=1;
-                if(eppic_legacy) {
-                    eppic_defbtype(vp->v, apiv);
-                    vp->v->mem=apiv;
-                }
                 /* put this on the global list */
                 eppic_enqueue(apiglobs, vp);
             }

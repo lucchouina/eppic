@@ -24,7 +24,9 @@ LDIRT    = lex.eppic.c lex.eppicpp.c eppic.tab.c eppic.tab.h eppicpp.tab.c \
 LIBDIR	 = /usr/lib
 TARGETS  = libeppic.a
 
-CFLAGS += -g -fno-omit-frame-pointer -fPIC
+# NOTE : -O2 crashes in the eppic_stats.c:eppic_dofor(). 
+#        Disassembly shows invalid code for UNSETVS
+CFLAGS += -g -O3 -fno-omit-frame-pointer -fPIC
 ifeq ($(TARGET), PPC64)
 	CFLAGS += -m64
 endif

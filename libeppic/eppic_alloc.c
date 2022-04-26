@@ -318,7 +318,7 @@ eppic_istemp(void *p)
 }
 
 char *
-eppic_strdup(char *s)
+eppic_strdup(const char *s)
 {
 char *ns=eppic_alloc(strlen(s)+1);
 

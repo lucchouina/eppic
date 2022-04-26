@@ -17,55 +17,10 @@
  */
 
 /* unistd.h must appear before gdb includes in order for getopt() prototype definition to get included */
-#include <unistd.h>
+#include "defs.h"
 
-#include "gdb/defs.h"
-#include "target.h"
-#include "symtab.h"
-#include "gdbtypes.h"
-#include "gdbcore.h"
-#include "frame.h"
-#include "value.h"
-#include "symfile.h"
-#include "objfiles.h"
-#include "gdbcmd.h"
-#ifndef GDB_7_6
-#include "call-cmds.h"
-#endif
-#include "gdb_regex.h"
-#include "expression.h"
-#include "language.h"
-#include "demangle.h"
-#include "inferior.h"
-#include "linespec.h"
-#include "source.h"
-#include "filenames.h"		/* for FILENAME_CMP */
-#include "objc-lang.h"
-
-#include "hashtab.h"
-
-#include "gdb_obstack.h"
-#include "block.h"
-#include "dictionary.h"
-
-#include <sys/types.h>
-#include <fcntl.h>
-#include "gdb_string.h"
-#include "gdb_stat.h"
-#include <ctype.h>
-#include "cp-abi.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
 #include <eppic_api.h>
 
-/////////////////////////////////////////////////////////////////////////
-// some stuff from crash's defs.h, file which cannot be included here.
-// Hate to do this but this is a quick port. 
-// If anyone cares to work on the include and defs structure to make
-// this work cleanly...
-//
 /*
  *  Global data (global_data.c) 
  */
@@ -80,33 +35,8 @@ extern int argerrs;
 
 typedef void (*cmd_func_t)(void);
 
-struct command_table_entry {               /* one for each command in menu */
-	char *name;
-	cmd_func_t func;
-	char **help_data;
-	ulong flags;
-};
-extern FILE *fp; 
-extern char *crash_global_cmd();
-
 typedef unsigned long long int ulonglong;
-extern int readmem(ulonglong, int, void *, long, char *, ulong);
-extern int symbol_exists(char *);
-extern ulong symbol_value(char *);
-extern void cmd_usage(char *, int);
-extern void register_extension(struct command_table_entry *);
-/* this definition of syment must match that in crash's defs.h */
-struct syment {
-	ulong value;
-	char *name;
-	struct syment *val_hash_next;
-	struct syment *name_hash_next;
-	char type;
-	unsigned char cnt;
-	unsigned char flags;
-	unsigned char pad2;
-};
-extern struct syment *value_search(ulong value, ulong *offset);
+
 char findsym_namebuf[100];
 
 //
@@ -156,69 +86,6 @@ apiputmem(ull iaddr, void *p, int nbytes)
 	return 1;
 }
 
-/* extract a complex type (struct, union and enum) */
-static int
-apigetctype(int ctype, char *name, TYPE_S *tout)
-{
-    struct symbol *sym;
-    struct type *type;
-    int v=0;
-    
-    eppic_dbg_named(DBG_TYPE, name, 2, "Looking for type %d name [%s] in struct domain...", ctype, name);
-#ifdef GDB_6_1
-    sym = lookup_symbol(name, 0, STRUCT_DOMAIN, 0, (struct symtab **) NULL);
-#else
-    sym = lookup_symbol(name, 0, STRUCT_DOMAIN, 0);
-#endif
-    if(!sym) {
-            eppic_dbg_named(DBG_TYPE, name, 2, "Not found.\nLooking for type %d name [%s] in var domain...", ctype, name);
-#ifdef GDB_6_1
-            sym = lookup_symbol(name, 0, VAR_DOMAIN, 0, (struct symtab **) NULL);
-#else
-            sym = lookup_symbol(name, 0, VAR_DOMAIN, 0);
-#endif
-            if(sym) {
-                eppic_dbg_named(DBG_TYPE, name, 2, "found class=%d\n", sym->aclass);
-                if(sym->aclass == LOC_TYPEDEF) v=1;
-            }
-    }
-        
-    if (sym) {
-        type=sym->type;
-        if(eppic_is_typedef(ctype) && v) goto match;
-        eppic_dbg_named(DBG_TYPE, name, 2, "TYPE_CODE is %d ctype %d\n", TYPE_CODE(type), ctype);
-        switch(TYPE_CODE(type)) {
-	    case TYPE_CODE_INT: 
-                eppic_dbg_named(DBG_TYPE, name, 2, "Variable is integer\n");
-		if (eppic_is_typedef(ctype)) {
-		    eppic_dbg_named(DBG_TYPE, name, 2, 
-				    "integer is not a typedef\n");
-		    break;
-			
-		}
-	
-            case TYPE_CODE_TYPEDEF:
-                                    if(eppic_is_typedef(ctype))  goto match; break;
-            case TYPE_CODE_ENUM:    if(eppic_is_enum(ctype))     goto match; break;
-            case TYPE_CODE_STRUCT:  if(eppic_is_struct(ctype))   goto match; break;
-            case TYPE_CODE_UNION:   if(eppic_is_union(ctype))    goto match; break;
-        }
-        eppic_dbg_named(DBG_TYPE, name, 2, "Found but no match.\n");
-    }
-    else eppic_dbg_named(DBG_TYPE, name, 2, "Not Found.\n");
-
-    return 0;
-
-match:
-    eppic_dbg_named(DBG_TYPE, name, 2, "Found.\n");
-    /* populate */
-    eppic_type_settype(tout, ctype);
-    eppic_type_setsize(tout, TYPE_LENGTH(type));
-    eppic_type_setidx(tout, (ull)(unsigned long)type);
-    eppic_pushref(tout, 0);
-    return 1;
-}
-
 /* set idx value to actual array indexes from specified size */
 static void
 eppic_setupidx(TYPE_S*t, int ref, int nidx, int *idxlst)
@@ -242,133 +109,200 @@ eppic_setupidx(TYPE_S*t, int ref, int nidx, int *idxlst)
                 eppic_type_setidxlst(t, idxlst);
         }
 }
-/*
-	This function needs to drill down a typedef and
-	return the corresponding type.
-	If the typedef is from a basetype eppic_parsetype() will be
-	called back to build the type 
-*/
-static char *
-drilldowntype(struct type *type, TYPE_S *t)
+
+typedef struct apigdbpriv_s {
+
+    void *stmember;
+    void *type;
+    void *enumt;
+    void *value;
+    void *name;
+    void *addr;
+    void *maddr;
+    int *idxlst;
+    char *tdef;
+    int nidx;
+    int ref;
+    int fct;
+
+} apigdbpriv_t;
+
+static int
+api_callback(drill_ops_t op, struct gnu_request *req, const void *v1, const void *v2, const void *v3, const void *v4)
 {
-char *tstr=0;
-int fctflg=0, ref=0;
-int *idxlst=0;
-int nidx=0;
+apigdbpriv_t *p=(apigdbpriv_t *)req->priv;
 
-	while(type)
+    if(op != EOP_MEMBER_NAME && !p->type) {
+        eppic_dbg(DBG_ALL, 2, "No type for op '%d', name '%s' stmember '%p'", op, req->name, p->stmember);
+        return 1;
+    }
+    switch(op) {
+    
+        case EOP_POINTER:  
+            eppic_dbg(DBG_ALL, 2, "Pointer '%d'", p->ref);
+            p->ref++;
+        break;
+        case EOP_TYPEDEF:
+            eppic_dbg(DBG_ALL, 2, "Typedef '%s' '%s'", req->name, v1);
+            p->tdef=eppic_strdup(v1);
+        break; 
+        case EOP_FUNCTION:
+            eppic_dbg(DBG_ALL, 2, "Function'%s'", req->type_name);
+        break; 
+        case EOP_ARRAY: {
+            int total=*(int*)v1;
+            int elem=*(int*)v2;
+            eppic_dbg(DBG_ALL, 2, "Array total %d elem %d", total, elem);
+            if(!p->idxlst) p->idxlst=eppic_calloc(sizeof(int)*(MAXIDX+1));
+            if(p->nidx >= MAXIDX) eppic_error("Too many indexes! max=%d", MAXIDX);
+            p->idxlst[p->nidx++]=total/elem;
+        }
+        break;
+        case EOP_UNION:
+            eppic_type_mkunion(p->type);
+	    goto label;
+
+	case EOP_ENUM:
+	    eppic_type_mkenum(p->type);
+	    goto label;
+
+	case EOP_STRUCT:
 	{
-            check_typedef(type);
-
-            // check out for stub types and pull in the definition instead
-            if(TYPE_STUB(type) && TYPE_TAG_NAME(type)) {
-#ifdef GDB_6_1
-                struct symbol *sym=lookup_symbol(TYPE_TAG_NAME(type), 0, STRUCT_DOMAIN, 0, (struct symtab **) NULL);
-#else
-                struct symbol *sym=lookup_symbol(TYPE_TAG_NAME(type), 0, STRUCT_DOMAIN, 0);
-#endif
-                if(sym) {
-                    type=sym->type;
-                } 
-            }
-            switch(TYPE_CODE(type)) {
-
-		/* typedef inserts a level of reference to the 1'dactual type */
-		case TYPE_CODE_PTR:
-	
-			ref++;
-                        type=TYPE_TARGET_TYPE(type);
-       			/* this could be a void*, in which case the drill down stops here */
-			if(!type) {
-
-				/* make it a char* */
-				eppic_parsetype("char", t, ref);
-				return 0;
-
-			}
-		break;
-
-		/* handle pointer to functions */
-		case TYPE_CODE_FUNC:
-
-			fctflg=1;
-                        type=TYPE_TARGET_TYPE(type);
-		break;
-
-		/* Is this an array ? if so then just skip this type info and
-		   we only need information on the elements themselves */
-		case TYPE_CODE_ARRAY:
-                        if(!idxlst) idxlst=eppic_calloc(sizeof(int)*(MAXIDX+1));
-                        if(nidx >= MAXIDX) eppic_error("Too many indexes! max=%d\n", MAXIDX);
-                        if (TYPE_LENGTH (type) > 0 && TYPE_LENGTH (TYPE_TARGET_TYPE (type)) > 0)
-	                {
-                            idxlst[nidx++]=TYPE_LENGTH (type) / TYPE_LENGTH (check_typedef(TYPE_TARGET_TYPE (type)));
-                        }
-                        type=TYPE_TARGET_TYPE(type);
-		break;
-
-		/* typedef points to a typedef itself */
-		case TYPE_CODE_TYPEDEF:
-                        type=TYPE_TARGET_TYPE(type);
-		break;
-
-		case TYPE_CODE_INT:
-			tstr=(char *)TYPE_NAME(type);
-			eppic_parsetype(tstr, t, 0);
-			type=0;
-		break;
-
-		case TYPE_CODE_BOOL:
-			eppic_parsetype("char", t, ref);
-			type=0;
-			break;
-
-		case TYPE_CODE_UNION: 
-			eppic_type_mkunion(t);
-			goto label;
-
-		case TYPE_CODE_ENUM:
-			eppic_type_mkenum(t);
-			goto label;
-
-		case TYPE_CODE_STRUCT:
-		{
-			eppic_type_mkstruct(t);
-
+	    eppic_type_mkstruct(p->type);
 label:
-			eppic_type_setsize(t, TYPE_LENGTH(type));
-			eppic_type_setidx(t, (ull)(unsigned long)type);
-			tstr=(char *)TYPE_TAG_NAME(type);
-                        if(tstr) apigetctype(V_STRUCT, tstr, t);
-                        type=0;
-		}
-		break;
-
-		/* we don;t have all the info about it */
-		case TYPE_CODE_VOID:
-			eppic_parsetype("int", t, 0);
-                        type=0;
-		break;
-
-
-		default: 
-			eppic_error("Oops drilldowntype");
-		break;
-		}
-
-
+            eppic_dbg(DBG_ALL, 2, "ctype op %d name '%s', size %d typename '%s' tdef='%s' stmember=%p", op, req->name, *(int*)v1, v3, p->tdef, p->stmember);
+	    eppic_type_setsize(p->type, *(int*)v1);
+            eppic_type_setidxbyname(p->type, (char*)(v3?v3:p->tdef));
+            if(p->stmember) {
+                if(p->stmember) eppic_member_setidx(p->stmember, p->type);
+            }
 	}
-	eppic_setupidx(t, ref, nidx, idxlst);
-	if(fctflg) eppic_type_setfct(t, 1);
-	eppic_pushref(t, ref+(nidx?1:0));
-	if(tstr) return eppic_strdup(tstr);
-	return eppic_strdup("");
+	break;
+        case EOP_INT:
+            eppic_dbg(DBG_ALL, 2, "INT '%s' '%s' size %d", req->type_name, req->target_typename, *(long*)v1);
+	    eppic_inttype(p->type, *(ull *)v1);
+        break;
+        case EOP_DONE:
+            eppic_dbg(DBG_ALL, 2, "Done '%s' '%s'", req->type_name, req->target_typename);
+	    eppic_setupidx(p->type, p->ref, p->nidx, p->idxlst);
+	    if(p->fct) eppic_type_setfct(p->type, 1);
+	    eppic_pushref(p->type, p->ref+(p->nidx?1:0));
+            p->ref=p->fct=p->nidx=0;
+            p->idxlst=NULL;
+            if(p->tdef) { eppic_free(p->tdef); p->tdef=NULL; }
+            if(p->maddr) {
+                eppic_pushref(p->type, 1);
+                eppic_setmemaddr(p->value, (ull)p->maddr);
+                eppic_do_deref(1, p->value, p->value);
+            }
+        break;
+        case EOP_MEMBER_SIZES :
+            eppic_dbg(DBG_ALL, 2, "Member sizes %d, %d, %d, %d", *(long*)v1, *(long*)v2, *(long*)v3, *(long*)v4);
+            eppic_member_info(p->stmember, *(long*)v1, *(long*)v2, *(long*)v3, *(long*)v4);
+        break;
+        case EOP_MEMBER_NAME :
+            eppic_dbg(DBG_ALL, 2, "Checking member '%s' against wanted '%s'", v1, req->member);
+	    if(!req->member[0] || !strcmp(req->member, v1) ) {
+                eppic_new_member(p->stmember, (void*)v1);
+                p->type=eppic_stm_type(p->stmember);
+                eppic_dbg(DBG_ALL, 2, "Setting p->t to %p", p->type);
+                return 1;
+            }
+            return 0;
+        break;
+        case EOP_ENUMVAL:
+            p->enumt=eppic_add_enum(p->enumt, eppic_strdup(v1), (int) *(long long*)v2);
+        break;
+        case EOP_VALUE:
+            if(p->value) {
+                p->maddr=(void*)symbol_value(req->name);
+                eppic_dbg(DBG_ALL, 2, "variable '%s' is '%p'", req->name, p->maddr);
+                p->type=eppic_gettype(p->value);
+            }
+            if(p->addr) *(ull*)p->addr=(ull) *(long*)v1;
+            else if (!p->value) return 0; /* typedef check that matches a kernel symbol */
+        break;
+        case EOP_OOPS:
+            eppic_dbg(DBG_ALL, 2, "'%d' : %s", *(drill_ops_t*)v1, v2);
+        break;
+        default:
+            eppic_dbg(DBG_ALL, 2, "Unknow EOP %d", op);
+        break;
+    }
+    return 1;
+}
+
+/* extract a complex type (struct, union and enum) */
+static int
+apigetctype(int ctype, char *name, TYPE_S *tout)
+{
+    struct gnu_request req;
+    apigdbpriv_t priv;
+    char buf[1024];
+    eppic_dbg_named(DBG_TYPE, name, 1, "Looking for type %d name [%s]...\n", ctype, name);
+    BZERO(&req, sizeof req);
+    BZERO(&priv, sizeof priv);
+    req.command = GNU_GET_DATATYPE;
+    req.flags |= GNU_RETURN_ON_ERROR;
+    req.name = buf;
+    req.member = NULL;
+    req.fp = pc->nullfp;
+    req.priv = &priv;
+    priv.type=tout;
+    req.callback = api_callback;
+    buf[sizeof buf-1]='\0';
+    
+    if(eppic_is_struct(ctype)) snprintf(buf, sizeof buf, "struct %s", name);
+    else {
+        if(eppic_is_union(ctype)) snprintf(buf, sizeof buf, "union %s", name);
+        else snprintf(buf, sizeof buf, "%s", name);
+    }
+
+    eppic_dbg_named(DBG_TYPE, name, 1, "Looking up ctype %d name '%s'\n", ctype, buf);
+    gdb_interface(&req);
+
+    if(req.typecode == TYPE_CODE_UNDEF) {
+        eppic_dbg_named(DBG_TYPE, name, 1, "ctype not Found '%s' - ctype [%d]\n", name, ctype);
+        return 0;
+    }
+    else if(eppic_is_typedef(ctype) && !req.is_typedef) {
+        eppic_dbg_named(DBG_TYPE, name, 1, "ctype not a typedef '%s' - ctype [%d]\n", name, ctype);
+        return 0;
+    }
+    else eppic_dbg_named(DBG_TYPE, name, 1,"ctype %d name '%s' FOUND\n", ctype, name);
+    return 1;
+}
+
+
+/* 
+	Get the type, size and position information for all member of a structure.
+*/
+static int
+apimember(char *sname, char *mname, void **stmp)
+{
+    struct gnu_request req;
+    apigdbpriv_t priv;
+    eppic_dbg(DBG_ALL, 2, "Looking for members of [%s]...", sname);
+    eppic_dbg_named(DBG_TYPE, sname, 2, "Looking for members of [%s]...", sname);    
+    BZERO(&req, sizeof req);
+    BZERO(&priv, sizeof priv);
+    req.command = GNU_GET_DATATYPE;
+    req.flags |= GNU_RETURN_ON_ERROR;
+    req.name = sname;
+    req.member = mname;
+    req.priv = &priv;
+    req.callback = api_callback;
+    req.fp = pc->nullfp;
+    priv.stmember=stmp;
+    gdb_interface(&req);
+    if(req.member_offset >= 0) return 1;
+    return 0;
 }
 
 static char *
-apigetrtype(ull idx, TYPE_S *t)
+apigetrtype(char *tstr, TYPE_S *t)
 {
-	return drilldowntype((struct type*)(unsigned long)(idx), t);
+	return 0;
 }
 
 /* test a string for being a hex number */
@@ -401,7 +335,6 @@ is_hex(char *c)
    	Return the name of a symbol at an address (if any)
         Or return the address of a symbol
 */
-struct syment * symbol_search(char *p);
 static char*
 apifindsym(char *p)
 {
@@ -430,155 +363,64 @@ apifindsym(char *p)
 	}
 }
 
-/* 
-	Get the type, size and position information for a member of a structure.
-*/
-static char*
-apimember(char *mname,  ull tnum, TYPE_S *tm, MEMBER_S *m, ull *lnum)
-{
-struct type *type=(struct type*)(unsigned long)tnum;
-int midx;
-#define LASTNUM (*lnum)
-
-	/* if we're being asked the next member in a getfirst/getnext sequence */
-	if(mname && !mname[0] && LASTNUM) {
-
-		midx = LASTNUM;
-
-	} else {
-
-		if (TYPE_CODE(type) == TYPE_CODE_TYPEDEF) {
-			return 0;
-		}
-		if ((TYPE_CODE(type) != TYPE_CODE_STRUCT) && (TYPE_CODE(type) != TYPE_CODE_UNION)) {
-			return 0;
-		}
-                midx=0;
-	}
-	while(midx < TYPE_NFIELDS(type)) {
-        
-		if (!mname || !mname[0] || !strcmp(mname, TYPE_FIELD_NAME(type, midx))) {
-
-                        check_typedef(TYPE_FIELD_TYPE(type, midx));
-			eppic_member_soffset(m, TYPE_FIELD_BITPOS(type, midx)/8);
-			eppic_member_ssize(m, TYPE_FIELD_TYPE(type, midx)->length);
-			eppic_member_snbits(m, TYPE_FIELD_BITSIZE(type, midx));
-			eppic_member_sfbit(m, TYPE_FIELD_BITPOS(type, midx)%8);
-			eppic_member_sname(m, (char *)TYPE_FIELD_NAME(type, midx));
-			LASTNUM=midx+1;
-			return drilldowntype(TYPE_FIELD_TYPE(type, midx), tm);
-		}
-		midx++;
-	}
-	return 0;
-}
-
-/*
-	This function gets the proper allignment value for a type.
-*/
-static int
-apialignment(ull idx)
-{
-struct type *type=(struct type *)(unsigned long)idx;
-
-    while(1)
-    {
-	switch(TYPE_CODE(type)) {
-
-	    case TYPE_CODE_ARRAY: case TYPE_CODE_TYPEDEF:
-		    type=TYPE_TARGET_TYPE(type);
-	    break;
-
-	    case TYPE_CODE_STRUCT:
-	    case TYPE_CODE_UNION:
-	    {
-		int max=0, cur;
-		int midx=0;
-
-		while(midx < TYPE_NFIELDS(type)) {
-                    cur=apialignment((ull)(unsigned long)TYPE_FIELD_TYPE(type, midx));
-	            if(cur > max) max=cur;
-	            midx++;
-		}
-		return max;
-            }
-            
-
-	    case TYPE_CODE_PTR:
-	    case TYPE_CODE_ENUM:
-	    case TYPE_CODE_INT:
-
-		    return TYPE_LENGTH (type);
-
-	    default:
-
-		    eppic_error("Oops apialignment");
-	}
-    }
-}
-
 /* get the value of a symbol */
 static int
-apigetval(char *name, ull *val,  VALUE_S *value)
+apigetval(char *name, ull *addr, VALUE_S *value)
 {
-    if (symbol_exists(name)) {
+    struct gnu_request req;
+    apigdbpriv_t priv;
 
-        *val=symbol_value(name);
-
-        if(value) {
-            struct expression *expr;
-            struct value *sval;
-            struct cleanup *old_chain = NULL;
-            struct type *type;
-            VALUE_S *vref;
-            TYPE_S *stype;
-            expr = parse_expression (name);
-            old_chain = make_cleanup (free_current_contents, &expr);
-            sval = evaluate_type (expr);
-            type = value_type(sval);
-            stype=eppic_gettype(value);
-            apigetrtype((ull)type, stype);
-            eppic_pushref(stype, 1);
-            eppic_setmemaddr(value, *val);
-            eppic_do_deref(1, value, value);
-            *val=eppic_getval(value);
-            if(!eppic_type_islocal(stype) && eppic_type_getidx(stype) > 100) {
-                char *tname;
-                type=(struct type*)((long)eppic_type_getidx(stype));
-                if(type->main_type) tname=(char *)type->main_type->tag_name;
-                if(tname) eppic_chktype(stype, tname);
-            }
-            do_cleanups (old_chain);
-        }
-        return 1;
+    TYPE_S *stype;
+    eppic_dbg(DBG_ALL, 2, "Looking for value of [%s]...", name);
+    eppic_dbg_named(DBG_TYPE, name, 2, "Looking for value of [%s]...", name);    
+    BZERO(&req, sizeof req);
+    BZERO(&priv, sizeof priv);
+    req.command = GNU_GET_DATATYPE;
+    req.flags |= GNU_RETURN_ON_ERROR;
+    req.name = name;
+    req.priv = &priv;
+    req.fp = pc->nullfp;
+    priv.value=value;
+    priv.addr=addr;
+    priv.type=eppic_gettype(value);
+    req.callback = api_callback;
+    gdb_interface(&req);
+    if(req.typecode == TYPE_CODE_UNDEF) {
+        eppic_dbg(DBG_ALL, 2, "Value of name '%s' not found", name);
+        eppic_dbg_named(DBG_TYPE, name, 2, "Not Found.\n");
+        return 0;
     }
-    return 0;
+    else eppic_dbg(DBG_ALL, 2, "value of name '%s' FOUND", name);
+    return 1;
 }
 
 /*
 	Get the list of enum symbols.
 */
-ENUM_S*
-apigetenum(char *name)
+int
+apigetenum(char *name, ENUM_S *e)
 {
-    struct symbol *sym;
+    struct gnu_request req;
+    apigdbpriv_t priv;
 
-#ifdef GDB_6_1
-    sym = lookup_symbol(name, 0, STRUCT_DOMAIN, 0, (struct symtab **) NULL);
-#else
-    sym = lookup_symbol(name, 0, STRUCT_DOMAIN, 0);
-#endif
-    if (sym && TYPE_CODE(sym->type)==TYPE_CODE_ENUM) {
-	ENUM_S *et=0;
-        struct type *type=sym->type;
-        int n=0;
-	while(n < TYPE_NFIELDS (type)) {
-      	    et=eppic_add_enum(et, eppic_strdup((char*)TYPE_FIELD_NAME(type, n)), TYPE_FIELD_BITPOS(type, n));
-            n++;
-	}
-        return et;
+    TYPE_S *stype;
+    eppic_dbg_named(DBG_TYPE, name, 2, "Looking for enum of [%s]...", name);    
+    BZERO(&req, sizeof req);
+    BZERO(&priv, sizeof priv);
+    req.command = GNU_GET_DATATYPE;
+    req.flags |= GNU_RETURN_ON_ERROR;
+    req.name = name;
+    req.priv = &priv;
+    priv.enumt=e;
+    req.fp = pc->nullfp;
+    req.callback = api_callback;
+    gdb_interface(&req);
+    if(req.typecode == TYPE_CODE_UNDEF) {
+        eppic_dbg_named(DBG_TYPE, name, 2, "Enum '%s' Not Found.\n", name);
+        return 0;
     }
-    return 0;
+    else eppic_dbg_named(DBG_TYPE, name, 2, "Enum '%s' Found.\n", name); 
+    return 1;
 }
 
 /*
@@ -675,37 +517,6 @@ static char *untdef[] = {
     0 
 };
 
-#if 0
-How to extract basic set of -D flags from the kernel image
-
-	prod=eppic_strdup(kl_getproducer());
-	for(p=prod; *p; p++) {
-
-		if(*p=='-' && *(p+1)=='D') {
-
-			char *def=p+2;
-
-			while(*p && *p != '=' && *p != ' ') p++;
-
-			if(!*p || *p == ' ') {
-
-				*p='\0';
-				dt=eppic_add_def(dt, eppic_strdup(def), eppic_strdup("1"));
-
-			} else {
-
-				char *val=p+1;
-
-				*p++='\0';
-				while(*p && *p != ' ') p++;
-				*p='\0';
-
-				dt=eppic_add_def(dt, eppic_strdup(def), eppic_strdup(val));
-			}
-		}
-	}
-#endif	
-
         /* remove some tdef with very usual identifier.
            could also be cases where the kernel defined a type and variable with same name e.g. xtime.
            the same can be accomplished in source using #undef <tdefname> or forcing the evaluation of 
@@ -728,38 +539,34 @@ How to extract basic set of -D flags from the kernel image
 			eppic_strdup(linuxdefs[i].value));
 	}
 
-#if 1
         {
             ull addr;
             char banner[200];
-            if(apigetval("linux_banner", &addr, NULL)) {
-                if(apigetmem(addr, banner, sizeof banner-1)) {
-                
-                    // parse the banner string and set up release macros
-                    banner[sizeof banner -1]='\0';
-                    char *tok=strtok(banner, " \t");
-                    if(tok) tok=strtok(NULL, " \t");
-                    if(tok) tok=strtok(NULL, " \t");
-                    if(tok) {
-                        int version, patchlevel, sublevel, ret;
-                        ret = sscanf(tok, "%d.%d.%d-", &version, &patchlevel, &sublevel);
-			switch (ret) {
-			case 2:
-			    sublevel = 0;
-			case 3:
-			    sprintf(banner, "0x%02x%02x%02x", version, patchlevel, sublevel);
-		            dt=eppic_add_def(dt, eppic_strdup("LINUX_RELEASE"), eppic_strdup(banner));
-                            eppic_msg("Core LINUX_RELEASE == '%s'\n", tok);
-			default:
-			    break;
-                        }
+            addr=symbol_value("linux_banner");
+            if(apigetmem(addr, banner, sizeof banner-1)) {
+
+                // parse the banner string and set up release macros
+                banner[sizeof banner -1]='\0';
+                char *tok=strtok(banner, " \t");
+                if(tok) tok=strtok(NULL, " \t");
+                if(tok) tok=strtok(NULL, " \t");
+                if(tok) {
+                    int version, patchlevel, sublevel, ret;
+                    ret = sscanf(tok, "%d.%d.%d-", &version, &patchlevel, &sublevel);
+		    switch (ret) {
+		    case 2:
+			sublevel = 0;
+		    case 3:
+			sprintf(banner, "0x%02x%02x%02x", version, patchlevel, sublevel);
+		        dt=eppic_add_def(dt, eppic_strdup("LINUX_RELEASE"), eppic_strdup(banner));
+                        //eppic_msg("Core LINUX_RELEASE == '%s'\n", tok);
+		    default:
+			break;
                     }
                 }
-                else eppic_msg("Eppic init: could not read symbol 'linux_banner' from corefile.\n");
             }
-            else eppic_msg("Eppic init: could not find symbol 'linux_banner' in corefile.\n");
+            else eppic_msg("Eppic init: could not read symbol 'linux_banner' from corefile.\n");
         }
-#endif
 	return dt;
 }
 
@@ -769,7 +576,6 @@ apiops icops= {
 	apimember, 
 	apigetctype, 
 	apigetrtype, 
-	apialignment, 
 	apigetval, 
 	apigetenum, 
 	apigetdefs,
@@ -983,6 +789,7 @@ struct command_table_entry *crash_cmd_table();
         cp->func=cmd;
         cp->help_data=help;
         cp->flags=flags;
+        eppic_msg("\t\t\tcommand : %s - %s\n", name, help[0]);
     }
 }
 
@@ -1053,7 +860,8 @@ char **help=malloc(sizeof *help * 5);
  *  The _fini() function is called if the shared object is unloaded. 
  *  If desired, perform any cleanups here. 
  */
-void _fini() 
+void __attribute__((destructor))
+eppic_fini(void) 
 { 
     // need to unload any files we have loaded
     
@@ -1065,12 +873,12 @@ unsigned long get_curtask();
     return eppic_makebtype((ull)get_curtask());
 }
 
-int _init() /* Register the command set. */
+void __attribute__((constructor)) 
+eppic_init(void) /* Register the command set. */
 { 
 #define LCDIR "/usr/share/eppic/crash"
 #define LCIDIR "include"
 #define LCUDIR ".eppic"
-
 
 	if(eppic_open() >= 0) {
 
@@ -1108,6 +916,8 @@ int _init() /* Register the command set. */
 #endif
 #endif
 #endif
+
+
 		eppic_apiset(&icops, EPPIC_ABI, sizeof(long), 0);
 
 		eppic_version();
@@ -1136,7 +946,7 @@ int _init() /* Register the command set. */
 		}
 		eppic_setmpath(path);
 
-		fprintf(fp, "\tLoading eppic commands from %s .... ",
+		fprintf(fp, "\tLoading eppic commands from %s .... \n",
                                          path);
 
 		/* include path */
@@ -1173,5 +983,4 @@ int _init() /* Register the command set. */
                 
                 fprintf(fp, "Done.\n");
 	} 
-        return 1;
 }

@@ -411,6 +411,22 @@ int idx=B_INT;
     defbidx=idx;
 }
 
+void eppic_inttype(type_t *t, ull size)
+{
+    int attr, idx;
+    switch(size) {
+        case 1: attr=B_CHAR;        idx=B_UC;   break;
+        case 2: attr=B_SHORT;       idx=B_US;   break;
+        case 4: attr=B_INT;         idx=B_UL;   break;
+        case 8: attr=B_LONGLONG;    idx=B_ULL;  break;
+        default: eppic_error("Int too big !");
+    }
+    t->idx=idx;
+    t->type=V_BASE;
+    t->typattr=attr;
+    t->size=size;
+}
+
 static int
 getbtype(int token)
 {
@@ -1173,8 +1189,8 @@ type_t*tfrm=&vfrm->type;
         else if(is_ctype(tto->type) || tto->type == V_ENUM) {
 
             /* same structure  type_t*/
-            if(tto->idx == tfrm->idx || eppic_samectypename(tto->type, tto->idx, tfrm->idx))
-                goto dupit;
+            if(tto->idx == tfrm->idx) goto dupit;
+// || eppic_samectypename(tto->type, tto->idx, tfrm->idx))
         }
         else if(tto->type == V_STRING) goto dupit;
 

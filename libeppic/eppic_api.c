@@ -141,14 +141,48 @@ stinfo_t*tst;
     return 0;
 }
 
+
 static void
 eppic_addst(stinfo_t*st)
 {
 stinfo_t*tst;
-        eppic_dbg_named(DBG_STRUCT, st->name, 2, "Adding struct %s to cache\n", st->name);
+    eppic_dbg_named(DBG_STRUCT, st->name, 2, "Adding struct %s to cache\n", st->name);
     tst=slist.next;
     slist.next=st;
     st->next=tst;
+}
+
+stinfo_t *
+eppic_partialctype(int type, char *name)
+{
+stinfo_t*st;
+
+    /* check first if we have a partial of that type
+       already in progress (after a forward declaration) */
+    if((st=eppic_getst(name, type))) {
+
+        /* if it's complete we need to start a new one */
+        if(!st->all) return st;
+
+    }
+    st=eppic_calloc(sizeof(stinfo_t));
+    st->name=eppic_strdup(name);
+    st->ctype.type=type;
+    st->all=0;
+    st->ctype.idx=(ull)st;
+    eppic_addst(st);
+    eppic_dbg(DBG_ALL, 2, "Returning stinfo %p of type %d name %s", st,  type, name);
+    return st;
+}
+
+void
+eppic_type_setidxbyname(type_t *t, char *name)
+{
+stinfo_t *st;
+
+    st=eppic_partialctype(t->type, name);
+    eppic_dbg(DBG_ALL, 2, "Setting idxbyname name '%s' stinfo_t * %p", name, st);
+    eppic_type_setidx(t, (ull)st);
 }
 
 typedef struct neg_s {
@@ -236,7 +270,7 @@ problem for the user put this is not a full blown C compiler.
 int
 eppic_ispartial(type_t*t)
 {
-stinfo_t*st=eppic_getstbyindex(t->idx, t->type);
+stinfo_t *st=(stinfo_t*)(t->idx);
 
     if(!st) {
 
@@ -248,10 +282,7 @@ stinfo_t*st=eppic_getstbyindex(t->idx, t->type);
 char *
 eppic_gettdefname(ull idx)
 {
-stinfo_t*tst=eppic_getstbyindex(idx, V_TYPEDEF);
-
-    if(tst) return tst->name;
-    else return 0;
+    return ((stinfo_t*)(idx))->name;
 }
 
 static int init=0;
@@ -271,10 +302,6 @@ eppic_getmem(ull kp, void *p, int n)
     eppic_chkinit();
     if(!API_GETMEM(kp, p, n)) {
 
-#if 0
-        if(!eppic_getvlev()) eppic_error("Error on read from 0x%llx for %d", kp, n);
-        else 
-#endif
             memset(p, 0xff, n);
     }
 }
@@ -288,27 +315,6 @@ eppic_putmem(ull kp, char *p, int n)
         eppic_error("Error on write at 0x%llx for %d", kp, n);
 
     }
-}
-
-void
-eppic_partialctype(int type, char *name)
-{
-stinfo_t*st;
-
-    /* check first if we have a partial of that type
-       already in progress (after a forward declaration) */
-    if((st=eppic_getst(name, type))) {
-
-        /* if it's complete we need to start a new one */
-        if(!st->all) return;
-
-    }
-    st=eppic_calloc(sizeof(stinfo_t));
-    st->name=eppic_strdup(name);
-    st->ctype.type=type;
-    st->all=0;
-    st->ctype.idx=st->idx=eppic_nextidx();
-    eppic_addst(st);
 }
 
 void
@@ -330,38 +336,35 @@ eppic_startctype(int type, node_t*namen)
 int
 eppic_samectypename(int type, ull idx1, ull idx2)
 {
-stinfo_t*st1, *st2;
+stinfo_t *st1=(stinfo_t*)idx1;
+stinfo_t *st2=(stinfo_t*)idx2;
 
-    if((st1=eppic_getstbyindex(idx1, type)) &&
-       (st2=eppic_getstbyindex(idx2, type))) {
-       
-        // check names
-        if(!strcmp(st1->name, st2->name)) return 1;
+    // check names
+    if(!strcmp(st1->name, st2->name)) return 1;
 
-        // check all members and sizes in order
-        // unamed ctypes can end up here too...
-        if(st1->stm) {
-            stmember_t *m1=st1->stm, *m2=st2->stm;
-            while(m1 && m2) {
-                if(strcmp(m1->m.name, m2->m.name)) break;
-                if(m1->m.offset != m2->m.offset ) break;
-                if(m1->m.size != m2->m.size ) break;
-                m1=m1->next;
-                m2=m2->next;
-            }
-            if(!m1 && !m2) return 1;
+    // check all members and sizes in order
+    // unamed ctypes can end up here too...
+    if(st1->stm) {
+        stmember_t *m1=st1->stm, *m2=st2->stm;
+        while(m1 && m2) {
+            if(strcmp(m1->m.name, m2->m.name)) break;
+            if(m1->m.offset != m2->m.offset ) break;
+            if(m1->m.size != m2->m.size ) break;
+            m1=m1->next;
+            m2=m2->next;
         }
-        else if(st1->enums) {
+        if(!m1 && !m2) return 1;
+    }
+    else if(st1->enums) {
 
-            enum_t *e1=st1->enums, *e2=st2->enums;
-            while(e1 && e2) {
-                if(strcmp(e1->name, e2->name)) break;
-                if(e1->value != e2->value ) break;
-                e1=e1->next;
-                e2=e2->next;
-            }
-            if(!e1 && !e2) return 1;
+        enum_t *e1=st1->enums, *e2=st2->enums;
+        while(e1 && e2) {
+            if(strcmp(e1->name, e2->name)) break;
+            if(e1->value != e2->value ) break;
+            e1=e1->next;
+            e2=e2->next;
         }
+        if(!e1 && !e2) return 1;
     }
     return 0;
 }
@@ -379,63 +382,14 @@ type_t*bt=eppic_newtype();
     return bt;
 }
 
-void eppic_fillst(stinfo_t *st);
-
-/* Just in case this is an unnamed structure member then we need
-   to add it to the slist ourselves using the index. eppic_getctype() would 
-   not found it.
-*/
-static void
-eppic_memstinfo(stmember_t *stm, char *pname)
-{
-int type=stm->type.ref?stm->type.rtype:stm->type.type;
-
-    if(is_ctype(type)) {
-
-        if(!eppic_getstbyindex(stm->type.idx, type)) {
-
-            stinfo_t*st=eppic_calloc(sizeof(stinfo_t));
-
-            eppic_duptype(&st->ctype, &stm->type);
-            st->ctype.type=type;
-            // dereference level is attached (wrongly) to type...
-            // zap it
-            st->ctype.ref=0;
-            st->idx=st->ctype.idx;
-            st->name=eppic_strdup(pname);
-            eppic_addst(st);
-        }
-    }
-}
-
 void
 eppic_fillst(stinfo_t *st)
 {
-char *mname=0;
-ull idx=st->ctype.idx, lidx=0;
-stmember_t *stm=eppic_calloc(sizeof(stmember_t)), **last=&st->stm;
-char *pname;
-
-    eppic_dbg_named(DBG_STRUCT, st->name, 2, "Fill St started [local=%d].\n", (idx & LOCALTYPESBASE) ? 1 : 0);
-    /* bail out if this is local type */
-    if(idx & LOCALTYPESBASE) return;
-
-    if(st->stm) eppic_error("Oops eppic_fillst!");
-
-    while((pname=API_MEMBER(mname, idx,  &stm->type, &stm->m, &lidx))) {
-
-        eppic_dbg_named(DBG_STRUCT, st->name, 2, "member '%s'\n", pname);
-        eppic_memstinfo(stm, pname);
-        stm->next=0;
-        *last=stm;
-        last=&stm->next;
-        mname="";
-        stm=eppic_calloc(sizeof(stmember_t));
-        if(pname[0]) eppic_free(pname);
-    }
-    st->all=1;
-    eppic_free(stm);
+    eppic_dbg_named(DBG_STRUCT, st->name, 2, "Fill St started '%s'.\n", st->name);
+    API_MEMBER(st->name, "", (void**)&st->stm);
+    if(st->stm) st->all=1;
 }
+
 
 type_t*
 eppic_getctype(int ctype, char *name, int silent)
@@ -444,117 +398,44 @@ stinfo_t *st;
 type_t *t=eppic_newtype();
 
     eppic_chkinit();
-        eppic_dbg_named(DBG_TYPE, name, 2, "getctype [%d] [%s] [s=%d]\n", ctype, name, silent);
+    eppic_dbg_named(DBG_TYPE, name, 1, "getctype [%d] [%s] [s=%d]\n", ctype, name, silent);
     if(!(st=eppic_getst(name, ctype))) {
 
-        eppic_dbg_named(DBG_TYPE, name, 2, "getctype [%s] not found in cache - isneg %d\n", name, eppic_isneg(name));
+        eppic_dbg_named(DBG_TYPE, name, 1, "getctype [%s] not found in cache - isneg %d\n", name, eppic_isneg(name));
         if(silent && eppic_isneg(name)) return 0;
 
         st=eppic_calloc(sizeof(stinfo_t));
-        if(!API_GETCTYPE(ctype, name,  &st->ctype)) {
+        if(!API_GETCTYPE(ctype, name, &st->ctype)) {
 
-            eppic_dbg_named(DBG_TYPE, name, 2, "[%s] not found in image caller = 0x%08x, 0x%08x\n", name,
-            __return_address, __builtin_return_address(1));
-            //if(!strcmp(name,"hlist_head") && ctype == 7) *(int*)0=0;
             eppic_free(st);
             eppic_freetype(t);
-            // add any tdef to the neg list
             if(ctype == V_TYPEDEF) eppic_addneg(name);
             if(silent) return 0;
-            /* we fill a partial structure for this one
-               assuming it will be defined later. This is to permit cross
-               referencing of structures, self referencing of structure, and 
-               undefined structure (opaque structures) irix: see types.c : 
-               __pasid_opaque  
-            */
-            eppic_dbg_named(DBG_TYPE, name, 2, "[%s] creating partial type\n", name);
+
+            eppic_dbg_named(DBG_TYPE, name, 1, "[%s] creating partial type\n", name);
             eppic_partialctype(ctype, name);
             return eppic_getctype(ctype, name, silent);
         }
-        eppic_dbg_named(DBG_TYPE, name, 2, "getctype [%s] found in image\n", name);
+        eppic_dbg_named(DBG_TYPE, name, 1, "getctype [%s] found in image\n", name);
         st->name=eppic_alloc(strlen(name)+1);
         strcpy(st->name, name);
         st->stm=0;
-        st->idx=st->ctype.idx;
-        st->all=1;
+        st->idx=st->ctype.idx=(ull)(unsigned long)st;
         eppic_addst(st);
-        /*
-          if this is a typedef then drill down to the real type
-          and make sure it is in the cache. That's what we return
-
-          Bug cure: this would fail:
-
-            struct sv {
-                    int i;
-            };
-            struct foo {
-                    sv_t    ms_sv;
-            };
-
-            Because the rtype index returned by API_GETRTYPE() is the die offset
-            in the image. If We already have redefine the real type locally the
-            call to eppic_getctype() will not have a matching index later when we
-            don't find the index in the type cache.
-
-            So we track the real index with ridx. This also ensures that 
-            redefining a struct locally and using a typetef from the image will actualy
-            end up pointing to the local struct and not the image struct.
-        */
-        if(ctype == V_TYPEDEF) {
-
-            char *tname;
-            int itype;
-
-            tname=API_GETRTYPE(st->idx, t);
-
-            if(t->type==V_REF) itype=t->rtype;
-            else itype=t->type;
-
-            /* if it's a named struct, enum or union then make sure we have it in the cache */
-            if(is_ctype(itype) && tname && tname[0] && 
-                (strcmp(tname,"struct ") != 0 
-                    && strcmp(tname,"union ") != 0
-                    && strcmp(tname,"enum ") != 0)) {
-
-                eppic_freetype(t);
-                t=eppic_getctype(itype, tname, silent);
-
-                /* in IRIX we have a typedef struct __pasid_opaque* aspasid_t;
-                   w/ no struct __pasid_opaque defined. The aspasid_t ends
-                   up being used as a "named" void *. So we force a void * here */
-                /* XXX: This should at least generate a warning */
-                if(!t) {
-                    eppic_warning("voidstruct created (%s)\n", tname);
-                    t=eppic_getvoidstruct(itype);
-                }
-            } else if (is_ctype(itype) || itype == V_ENUM) {
-                
-                /* for unnamed structs, unions and enums create an entry */
-                stinfo_t*st=eppic_calloc(sizeof(stinfo_t));
-
-                eppic_duptype(&st->ctype, t);
-                st->idx=t->idx;
-                st->name=eppic_strdup("");
-                eppic_fillst(st);
-                eppic_addst(st);
-            }
-            eppic_duptype(&st->rtype, t);
-                        
-        } else if(is_ctype(ctype)) {
-
-            /* get all member info now ! */
-            eppic_fillst(st);
+        if(ctype == V_ENUM) {
+            API_GETENUM(name, st->enums);
+            eppic_pushenums(st->enums);
         }
     }
-    else eppic_dbg_named(DBG_TYPE, name, 2, "getctype [%s] found in cache \n", name);
+    else eppic_dbg_named(DBG_TYPE, name, 1, "getctype [%s] found in cache \n", name);
 
     if(ctype == V_ENUM || (ctype == V_TYPEDEF && st->rtype.type == V_ENUM)) {
-        st->enums=API_GETENUM(name);
+        API_GETENUM(name, st->enums);
         eppic_pushenums(st->enums);
     }
-    if(ctype==V_TYPEDEF) eppic_duptype(t, &st->rtype);
-    else eppic_duptype(t, &st->ctype);
-    eppic_dbg_named(DBG_TYPE, name, 2, "getctype [%s] idx=0x%llx ref=%d rtype=0x%llx\n", name, t->idx, t->ref, t->rtype);
+    eppic_duptype(t, &st->ctype);
+    eppic_type_setidx(t, (ull)st);
+    eppic_dbg_named(DBG_TYPE, name, 1, "getctype [%s] idx=0x%llx ref=%d rtype=0x%llx\n", name, t->idx, t->ref, t->rtype);
     return t;
 }
 
@@ -592,32 +473,23 @@ char *name=eppic_lastvar();
 static stmember_t*
 eppic_getm_idx(char *name, ull idx, stinfo_t**sti, int offset)
 {
-stinfo_t*st;
+stinfo_t*st=(stinfo_t*)idx;
 stmember_t*stm;
-    for(st=slist.next; st; st=st->next) {
 
-        if(st->idx == idx) {
+    if(sti) *sti=st;
 
-            if(sti) *sti=st;
-
-            if(!st->stm) {
-                eppic_fillst(st);
-                /* for unnamed structures we add the offset within the parent */
-                for(stm=st->stm; stm; stm=stm->next) {
-                    stm->m.offset+=offset;
-                }
-            }
-            
-            for(stm=st->stm; stm; stm=stm->next) {
-                /* if the struct is unamed (unamed member), we try to match that member in that struct */
-                if(!strlen(stm->m.name)) {
-                    stmember_t *ustm=eppic_getm_idx(name, stm->type.idx, sti, stm->m.offset);
-                    if(ustm) return ustm;
-                }
-                else if(!strcmp(stm->m.name, name)) return stm;
-            }
+    /* checkl what we have right now */
+    for(stm=st->stm; stm; stm=stm->next) {
+        /* if the struct is unamed (unamed member), we try to match that member in that struct */
+        if(!strlen(stm->m.name)) {
+            stmember_t *ustm=eppic_getm_idx(name, stm->type.idx, sti, stm->m.offset);
+            if(ustm) return ustm;
         }
+        else if(!strcmp(stm->m.name, name)) return stm;
     }
+    /* check if we can add this one */
+    API_MEMBER(st->name, name, (void**)&st->stm);
+    if(st->stm && !strcmp(st->stm->m.name, name)) return st->stm;
     return 0;
 }
 
@@ -674,21 +546,9 @@ eppic_getalign(type_t*t)
        largest allignment of sub structures */
     if(is_ctype(t->type)) {
 
-        stinfo_t*st;
+        stinfo_t*st=(stinfo_t *)(t->idx);
         stmember_t*sm;
         int maxallign=0;
-
-        /* if this is a image type then let the api tell us */
-        if(!(t->idx & LOCALTYPESBASE)) {
-
-            return API_ALIGNMENT(t->idx)*8;
-
-        }
-    
-        if(!(st=eppic_getstbyindex(t->idx, t->type))) {
-
-            eppic_error("Oops eppic_getalign");
-        }
 
         for(sm=st->stm; sm; sm=sm->next) {
 
@@ -716,22 +576,6 @@ stinfo_t*sti;
         /* we should already have a partial structure on the stack */
         sti=eppic_getst(name, ctype);
 
-#if 0
-At this time I choose not to give any warning.
-Structure redefinition is a normal part of include files... 
-
-        /* We give a warning message for redefined types */
-        {
-        type_t*t=eppic_newtype();
-
-            if(API_GETCTYPE(ctype, name, t)) {
-
-                eppic_warning("%s %s redefinition", eppic_ctypename(ctype), name);
-            }
-            eppic_freetype(t);
-        }
-#endif
-
         if(sti->all) {
 
             eppic_error("Oops eppic_ctype_decl");
@@ -743,7 +587,7 @@ Structure redefinition is a normal part of include files...
 
         sti=eppic_alloc(sizeof(stinfo_t));
         sti->name=0;
-        sti->idx=eppic_nextidx();
+        sti->idx=(ull)sti;
         eppic_addst(sti);
     }
     return sti;
@@ -1104,7 +948,7 @@ stmember_t *stm;
 int
 eppic_open()
 {
-    eppic_setofile(stdout);
+    eppic_setofile(stderr);
     /* push an empty level for parsing allocation */
     eppic_pushjmp(0, 0, 0);
     eppic_setapiglobs();
@@ -1116,12 +960,12 @@ eppic_open()
 /* here is a set of api function that do nothing */
 static int apigetmem(ull iaddr, void *p, int nbytes) { return 1; }
 static int apiputmem(ull iaddr, void *p, int nbytes) { return 1; }
-static char* apimember(char *mname,  ull pidx, type_t*tm, member_t *m, ull *lidx) { return 0; }
+static int apimember(char *sname, char *mname, void **stmp) { return 0; }
 static int apigetctype(int ctype, char *name, type_t*tout) { return 0; }
-static char * apigetrtype(ull idx, type_t*t) { return ""; }
+static char * apigetrtype(char *name, type_t*t) { return ""; }
 static int apialignment(ull idx) { return 0; }
 static int apigetval(char *name, ull *val, value_t *v) { return 0; }
-static enum_t* apigetenum(char *name) { return 0; }
+static int apigetenum(char *name, enum_t *enums) { return 0; }
 static def_t *apigetdefs(void) { return 0; }
 static char* apifindsym(char *p) { return 0; }
 
@@ -1131,7 +975,6 @@ static apiops nullops= {
         apimember, 
         apigetctype, 
         apigetrtype, 
-        apialignment,
         apigetval, 
         apigetenum, 
         apigetdefs, 
@@ -1316,6 +1159,7 @@ char *fname=eppic_filempath(name);
             buf=eppic_alloc(strlen(fname)+dp->d_reclen+2);
             sprintf(buf, "%s/%s", fname, dp->d_name);
             if(load) {
+                eppic_msg("\t\t%s\n", buf);
                 ret &= eppic_newfile(buf, silent);
             }else{
                 eppic_deletefile(buf);

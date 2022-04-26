@@ -33,12 +33,12 @@ typedef struct stat {
 
 } stat;
 
-#define SETVS   value_t *v1=0,*v2=0,*v3=0,*v4=0
-#define FV1 eppic_freeval(v1),v1=0
-#define FV2 eppic_freeval(v2),v2=0
-#define FV3 eppic_freeval(v3),v3=0
-#define FV4 eppic_freeval(v4),v4=0
-#define UNSETVS FV1,FV2,FV3,FV4
+#define SETVS value_t *v1=0,*v2=0,*v3=0,*v4=0
+#define FV1 if(v1) {eppic_freeval(v1); v1=0;}
+#define FV2 if(v2) {eppic_freeval(v2); v2=0;}
+#define FV3 if(v3) {eppic_freeval(v3); v3=0;}
+#define FV4 if(v4) {eppic_freeval(v4); v4=0;}
+#define UNSETVS FV1;FV2;FV3;FV4
 
 #define P1 (s->parms[0])
 #define P2 (s->parms[1])

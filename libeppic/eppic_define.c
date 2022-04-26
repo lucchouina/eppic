@@ -69,14 +69,14 @@ pmacs()
 mac_t *eppic_getcurmac(void);
     int i=10;
     mac_t *m=eppic_getcurmac();
-    eppic_dbg(DBG_MAC, 2, "=========================================\n");
-    eppic_dbg(DBG_MAC, 2, "curmac=0x%p macs=0x%p\n", eppic_getcurmac(), macs);
+    eppic_dbg(DBG_MAC, 3, "=========================================\n");
+    eppic_dbg(DBG_MAC, 3, "curmac=0x%p macs=0x%p\n", eppic_getcurmac(), macs);
     if(!m) m=macs;
     while(i-- && m) {
-        eppic_dbg(DBG_MAC, 2, "   [%d] %s - %s\n", m->issub, m->name, m->buf);
+        eppic_dbg(DBG_MAC, 3, "   [%d] %s - %s\n", m->issub, m->name, m->buf);
         m=m->next;
     }
-    eppic_dbg(DBG_MAC, 2, "=========================================\n");
+    eppic_dbg(DBG_MAC, 3, "=========================================\n");
 }
 
 /* search for a macro is the current list */
@@ -88,17 +88,17 @@ mac_t *prev=0;
 mac_t *eppic_getcurmac(void);
 int nosubs=0;
 
-    eppic_dbg_named(DBG_MAC, name, 2, "Looking for macro %s\n", name);
+    eppic_dbg_named(DBG_MAC, name, 3, "Looking for macro %s\n", name);
     
     for(m=macs; m; m=m->next) {
 
-        eppic_dbg_named(DBG_MAC, m->name, 2, "     issub %d, m=%p, supressed %d, %s [%s]\n", m->issub, m->m, m->m->supressed, m->name, m->buf);
+        eppic_dbg_named(DBG_MAC, m->name, 3, "     issub %d, m=%p, supressed %d, %s [%s]\n", m->issub, m->m, m->m->supressed, m->name, m->buf);
 
         if(m->issub && m->m->supressed) continue;
 
         if(!strcmp(m->name, name) ) {
 
-            eppic_dbg_named(DBG_MAC, m->name, 2, "     Found it !!!!!!!!!!!!!!!!\n");
+            eppic_dbg_named(DBG_MAC, m->name, 3, "     Found it !!!!!!!!!!!!!!!!\n");
             if(takeof) {
 
                 if(!prev) macs=m->next;
