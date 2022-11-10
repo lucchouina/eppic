@@ -97,7 +97,7 @@ CP              [)]
 "."         { retok(DIRECT); }
 "{"         { needvar=0; retok('{'); }
 
-\*+     { 
+\*     { 
             yylval.i=strlen(yytext); 
             return PTR; 
         }
