@@ -220,7 +220,11 @@ int npages;
     
 #endif
 
-
+    if(!m) {
+        srcpos_t p;
+        eppic_setpos(&p);
+        eppic_rerror(&p, "Failed memory allocation - for %d bytes", size);
+    }
     bl=(blist*)m;
     bl->size=size;
     bl->level=njmps;
