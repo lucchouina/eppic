@@ -380,7 +380,7 @@ void
 eppic_freedata(value_t *v)
 {
     
-    if(is_ctype(v->type.type) || v->type.type == V_STRING) {
+    if(v->type.type == V_STRING) {
 
         if(v->v.data) eppic_free(v->v.data);
         v->v.data=0;
@@ -393,7 +393,7 @@ void
 eppic_dupdata(value_t *v, value_t *vs)
 {
 
-    if(is_ctype(vs->type.type) || vs->type.type == V_STRING) {
+    if(vs->type.type == V_STRING) {
 
         v->v.data=eppic_alloc(vs->type.size);
         memmove(v->v.data, vs->v.data, vs->type.size);
@@ -1313,8 +1313,8 @@ value_t *val;
             srcpos_t pos;
             eppic_curpos(&name->pos, &pos);
             /* return the value_t of that string variable */
-            strcpy(p, val->v.data);
-            eppic_rerror(&pos, "NULL value to string attempted");
+            if(val->v.data) strcpy(p, val->v.data);
+            else eppic_rerror(&pos, "NULL value to string attempted");
             eppic_free(vname);
             eppic_curpos(&pos, 0);
             return p;

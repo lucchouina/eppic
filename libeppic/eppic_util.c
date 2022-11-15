@@ -456,7 +456,12 @@ int i = 0;
 
     while(vals[i] != NULL) {
         if(vals[i]->type.type == V_STRING)
-        len+=vals[i]->type.size;
+            len+=vals[i]->type.size;
+        else if(eppic_type_isinvmcore(&vals[i]->type)) {
+            /* for printing we allow pointers to vmcore objects */
+            eppic_pushref(&vals[i]->type, 1);
+            vals[i]->v.ull=vals[i]->mem;
+        }
         i++;
     }
 

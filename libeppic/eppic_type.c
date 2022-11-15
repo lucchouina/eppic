@@ -133,6 +133,8 @@ void eppic_type_mkunion(type_t*t) { t->type=V_UNION; }
 void eppic_type_mkenum(type_t*t) { t->type=V_ENUM; }
 void eppic_type_mkstruct(type_t*t) { t->type=V_STRUCT; }
 void eppic_type_mktypedef(type_t*t) { t->type=V_TYPEDEF; }
+int eppic_type_isctype(type_t*t) { return (eppic_is_struct(t->type) || eppic_is_union(t->type)); }
+int eppic_type_isinvmcore(type_t*t) { return (t->idxlst || eppic_type_isctype(t)); }
 
 static int defbtype=B_LONG|B_SIGNED;
 static int defbidx=B_SL;
@@ -508,8 +510,8 @@ void
 eppic_setmemaddr(value_t *v, ull mem)
 {
         v->mem=mem;
-        if(eppic_defbsize()==4) v->v.ul=(ul)mem;
-        else v->v.ull=mem;
+        //if(eppic_defbsize()==4) v->v.ul=(ul)mem;
+        //else v->v.ull=mem;
 }
 
 type_t *eppic_gettype(value_t *v)

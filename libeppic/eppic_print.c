@@ -173,7 +173,7 @@ int j, size=1;
             eppic_pushref(&vr->type, 1);
             if(eppic_defbsize()==8) vr->v.ull=mem;
             else vr->v.ul=(ul)mem;
-            eppic_do_deref(1, v, vr);
+            eppic_do_deref(v, vr);
             if(is_ctype(v->type.type) || !(i%NBUNDLE)) eppic_msg("[%2d] ", i);
             eppic_ptype2(&v->type, v, level+1, 0, 0, 0, 1);
             eppic_msg(", ");

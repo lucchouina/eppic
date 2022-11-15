@@ -6,20 +6,22 @@ string eps_help()  { return "show processes\n"; }
 
 char stateChar(long state)
 {
-    int bit=1, idx=0;
-    if(!state) return TASK_STATE_TO_CHAR_STR[0];
-    for(bit=1, idx=1; bit<TASK_STATE_MAX; bit <<=1, idx++) if(bit==state) return TASK_STATE_TO_CHAR_STR[idx];
-    return 'c';
+    int bit=1, idx;
+    string s="";
+    
+    for(bit=1, idx=1; bit<TASK_STATE_MAX; bit <<=1, idx++) if(bit&state) break;
+    if(bit==TASK_STATE_MAX) idx=0;
+    return task_state_array[idx][0];
 }
 
 void ps_print_one_task(struct task_struct *t) 
 {
-    
-    printf("%s %5d %5d %5d %p  %c  ", t->on_cpu?">":" ", t->pid, t->parent->pid, t->cpu, t, stateChar(t->state));
-    if(t->mm->rss_stat.count[0].counter>=0) {
-        printf("%s\n", getstr(t->comm));
+    char s=stateChar(t->state);
+    printf("%s %5d %5d %5d %p  %c  ", t->on_cpu?">":" ", t->pid, t->parent->pid, t->cpu, t, s);
+    if(t->mm) {
+        printf("%s\n", getstr(&t->comm));
     } else {
-        printf("[%s]\n", getstr(t->comm));
+        printf("[%s]\n", getstr(&t->comm));
     }
 }
 

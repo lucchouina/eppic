@@ -189,13 +189,15 @@ label:
 	    eppic_setupidx(p->type, p->ref, p->nidx, p->idxlst);
 	    if(p->fct) eppic_type_setfct(p->type, 1);
 	    eppic_pushref(p->type, p->ref);
-            p->ref=p->fct=p->nidx=0;
-            p->idxlst=NULL;
             if(p->tdef) { eppic_free(p->tdef); p->tdef=NULL; }
             if(p->maddr) {
-                eppic_pushref(p->type, 1);
+                /* Arays and struct/unions are indexed via an operator so
+                   we add a ref for the operator to resolve. */
                 eppic_setmemaddr(p->value, (ull)p->maddr);
-                eppic_do_deref(1, p->value, p->value);
+                if(!eppic_type_isinvmcore(p->type)) {
+                    eppic_pushref(p->type, 1);
+                    eppic_do_deref(p->value, p->value);
+                }
             }
         break;
         case EOP_MEMBER_SIZES :

@@ -34,13 +34,13 @@ int efiles()
     return 1;
 }
 
-void file_print(int fd, struct file *f, int c)
+void file_print(int fd, struct file *f, int con)
 {
     struct dentry *de=f->f_path.dentry;
     struct inode *i=de->d_inode;
     string t=inode_type(i);
     printf("%3d %p %p %p %-5s %s\n", fd, f, de, i, t, d_filepath(f));
-    if(c) {
+    if(con) {
         if(t == "PIPE") {
             waiters(&(i->i_pipe)->wait);
         }

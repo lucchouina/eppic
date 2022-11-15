@@ -9,10 +9,10 @@ string ipcs2_help()  { return "provide information on ipc facilities\n"; }
 
 #include <ipc/util.h>
 #include <shm.h>
-
 static int id=-1; 
+int i;
 
-int shm_callback(int mode, struct kern_ipc_perm *ipc, struct ipc_namespace *ns)
+int shm_callback(int modex, struct kern_ipc_perm *ipcx, struct ipc_namespace *nsx)
 {
     switch(mode) {
     
@@ -90,7 +90,8 @@ int sem_callback(int mode, struct kern_ipc_perm *ipc, struct ipc_namespace *ns)
 
 int ipcs2()
 {
-    struct ipc_namespace *ns=CURTASK->nsproxy->ipc_ns;
+    struct task_struct *t=CURTASK;
+    struct ipc_namespace *ns=t->nsproxy->ipc_ns;
     if(iflag) id=atoi(iarg);
     if(aflag || mflag) for_all_ipc_shm(ns, "shm_callback");
     if(aflag || sflag) for_all_ipc_sem(ns, "sem_callback");

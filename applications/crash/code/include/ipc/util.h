@@ -13,7 +13,7 @@
 
 #define sem_ids(ns) ((ns)->ids[IPC_SEM_IDS])
 #define msg_ids(ns) ((ns)->ids[IPC_MSG_IDS])
-#define shm_ids(ns)	((ns)->ids[IPC_SHM_IDS])
+#define shm_ids(ns) ((ns)->ids[IPC_SHM_IDS])
 
 static inline int ipc_buildid(int id, int seq)
 {

@@ -207,7 +207,7 @@ ARRAY_S *eppic_getarrval(ARRAY_S**, VALUE_S*);
 /* get the initiale array for a variable */
 ARRAY_S *eppic_addarrelem(ARRAY_S**, VALUE_S*, VALUE_S*);
 /* dereference a pointer to its value */
-void  eppic_do_deref(int n, VALUE_S* v, VALUE_S* ref);
+void  eppic_do_deref(VALUE_S* v, VALUE_S* ref);
 void  eppic_addneg(char *name);
 
 /* type manipulation */
@@ -238,6 +238,8 @@ void eppic_type_mkunion(TYPE_S*t);
 void eppic_type_mkenum(TYPE_S*t);
 void eppic_type_mkstruct(TYPE_S*t);
 void eppic_type_mktypedef(TYPE_S*t);
+int eppic_type_isctype(TYPE_S*t);
+int eppic_type_isinvmcore(TYPE_S*t);
 TYPE_S*eppic_newtype(void);
 void eppic_freetype(TYPE_S*t);
 void eppic_inttype(TYPE_S *t, ull size);
