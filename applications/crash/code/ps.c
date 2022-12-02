@@ -25,16 +25,20 @@ void ps_print_one_task(struct task_struct *t)
     }
 }
 
-int eps()
+void for_each_task(string cb)
 {
     struct task_struct *p;
-    printf("   PID    PPID  CPU %>TASK       ST COMM\n");
     for_each_process(p) {
         struct task_struct *t;
         for_each_thread(p, t) {
-            ps_print_one_task(t);
+            cb(t);
         }
     }
-    
+}
+
+int eps()
+{
+    printf("   PID    PPID  CPU %>TASK       ST COMM\n");
+    for_each_task(ps_print_one_task);
     return 1;
 }
