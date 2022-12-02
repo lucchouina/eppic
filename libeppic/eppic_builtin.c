@@ -310,6 +310,9 @@ var_t*v;
     return 0;
 }
 
+value_t* eppic_parsedebugon() { eppicppdebug=1; eppicdebug=1; return eppic_makebtype(0); }
+value_t* eppic_parsedebugoff() { eppicppdebug=0; eppicdebug=0; return eppic_makebtype(0); }
+
 #define bcast(f) ((bf_t*)f)
 
 static btspec_t eppicbfuncs[] = {
@@ -326,6 +329,8 @@ static btspec_t eppicbfuncs[] = {
     { "void showaddr(char *)",              bcast(eppic_showaddr)},
     { "void memdebugon()",                  bcast(eppic_memdebugon)},
     { "void memdebugoff()",                 bcast(eppic_memdebugoff)},
+    { "void parsedebugon()",                bcast(eppic_parsedebugon)},
+    { "void parsedebugoff()",               bcast(eppic_parsedebugoff)},
     { "int eppic_load(string)",             bcast(eppic_bload)},
     { "int eppic_unload(string)",           bcast(eppic_bunload)},
     { "int depend(string)",                 bcast(eppic_bdepend)},
