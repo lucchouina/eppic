@@ -35,12 +35,13 @@ int needvar=0, instruct=0;
 node_t *lastv;
 static char *lastvar=0;
 char *eppic_lastvar(void) { return lastvar; }
-extern void eppic_skip_directive(void);
-extern void eppic_define(void);
-extern void eppic_include(void);
-extern void eppic_undefine(void);
-extern char eppic_newchar(void);
-extern int  eppic_chkmacvar(char *);
+void eppic_skip_directive(void);
+void eppic_define(void);
+void eppic_include(void);
+void eppic_undefine(void);
+char eppic_newchar(void);
+int  eppic_chkmacvar(char *);
+void *eppic_getmac(char *, int );
 %}
 
 ABC     [a-zA-Z_]
@@ -185,7 +186,7 @@ __var__              { BEGIN(var1); }
 
 {ABC}{ABCN}*    { 
                 if(eppicdebug) printf("\n**[%s]\n", yytext);
-                if((!needvar) && (yylval.t=eppic_getctype(V_TYPEDEF, yytext, 1)))
+                if((!needvar) && !eppic_getmac(yytext, 0) && (yylval.t=eppic_getctype(V_TYPEDEF, yytext, 1)))
                 { 
                     /* hack to remember last tdef name */
                     if(lastvar) eppic_free(lastvar);
