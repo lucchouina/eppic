@@ -64,7 +64,6 @@ string kernfs_path_from_node(struct kernfs_node *kn_to, struct kernfs_node *kn_f
 	common = kernfs_common_ancestor(kn_from, kn_to);
 
 	depth_to = kernfs_depth(common, kn_to);
-
 	depth_from = kernfs_depth(common, kn_from);
 
 	for (i = 0; i < depth_from; i++) path += parent_str;

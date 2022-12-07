@@ -33,7 +33,6 @@ struct cgroup *cset_cgroup_from_root(struct css_set *cset, struct cgroup_root *r
 
 		list_for_each_entry(link, &cset->cgrp_links, cgrp_link) {
 			struct cgroup *cg = link->cgrp;
-                        printf("root->name='%s'\n", getstr(&root->name));
 			if (cg->root == root) {
 				res_cgroup = cg;
 				break;
@@ -43,7 +42,6 @@ struct cgroup *cset_cgroup_from_root(struct css_set *cset, struct cgroup_root *r
 
 	return res_cgroup;
 }
-
 string cgroup_path_ns_locked(struct cgroup *cgrp, struct cgroup_namespace *ns)
 {
 	struct cgroup *root = cset_cgroup_from_root(ns->root_cset, cgrp->root);
