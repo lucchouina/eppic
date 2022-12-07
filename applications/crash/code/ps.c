@@ -39,6 +39,6 @@ void for_each_task(string cb)
 int eps()
 {
     printf("   PID    PPID  CPU %>TASK       ST COMM\n");
-    for_each_task(ps_print_one_task);
+    for_each_task("ps_print_one_task");
     return 1;
 }
