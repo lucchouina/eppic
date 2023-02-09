@@ -9,10 +9,10 @@ string ipcs2_help()  { return "provide information on ipc facilities\n"; }
 
 #include <ipc/util.h>
 #include <shm.h>
-
 static int id=-1; 
+int i;
 
-int shm_callback(int mode, struct kern_ipc_perm *ipc, struct ipc_namespace *ns)
+int shm_callback(int modex, struct kern_ipc_perm *ipcx, struct ipc_namespace *nsx)
 {
     switch(mode) {
     
@@ -90,10 +90,12 @@ int sem_callback(int mode, struct kern_ipc_perm *ipc, struct ipc_namespace *ns)
 
 int ipcs2()
 {
+    struct task_struct *t=CURTASK;
+    struct ipc_namespace *ns=t->nsproxy->ipc_ns;
     if(iflag) id=atoi(iarg);
-    if(aflag || mflag) for_all_ipc_shm("shm_callback");
-    if(aflag || sflag) for_all_ipc_sem("sem_callback");
-    if(aflag || qflag) for_all_ipc_msg("msg_callback");
+    if(aflag || mflag) for_all_ipc_shm(ns, "shm_callback");
+    if(aflag || sflag) for_all_ipc_sem(ns, "sem_callback");
+    if(aflag || qflag) for_all_ipc_msg(ns, "msg_callback");
     if(!iflag && !aflag && (!(mflag || sflag || qflag))) printf("usage: ipcs2 %s", ipcs2_usage());
     return 1;
 }
@@ -124,17 +126,17 @@ int for_all_ipc_ids(struct ipc_namespace *ns, struct ipc_ids *ids, string ipc_cb
     return max_id;
 }
 
-void for_all_ipc_shm(string ipc_cb)
+void for_all_ipc_shm(struct ipc_namespace *ns, string ipc_cb)
 {
-    for_all_ipc_ids(init_nsproxy.ipc_ns, &shm_ids(init_nsproxy.ipc_ns), ipc_cb);
+    for_all_ipc_ids(ns, &shm_ids(ns), ipc_cb);
 }
 
-void for_all_ipc_msg(string ipc_cb)
+void for_all_ipc_msg(struct ipc_namespace *ns, string ipc_cb)
 {
-    for_all_ipc_ids(init_nsproxy.ipc_ns, &msg_ids(init_nsproxy.ipc_ns), ipc_cb);
+    for_all_ipc_ids(ns, &msg_ids(ns), ipc_cb);
 }
 
-void for_all_ipc_sem(string ipc_cb)
+void for_all_ipc_sem(struct ipc_namespace *ns, string ipc_cb)
 {
-    for_all_ipc_ids(init_nsproxy.ipc_ns, &sem_ids(init_nsproxy.ipc_ns), ipc_cb);
+    for_all_ipc_ids(ns, &sem_ids(ns), ipc_cb);
 }

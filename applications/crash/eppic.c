@@ -90,6 +90,8 @@ apiputmem(ull iaddr, void *p, int nbytes)
 static void
 eppic_setupidx(TYPE_S*t, int ref, int nidx, int *idxlst)
 {
+    eppic_type_setidxlst(t, idxlst);
+    return;
         /* put the idxlst in index size format */
         if(nidx) {
 
@@ -186,14 +188,16 @@ label:
             eppic_dbg(DBG_ALL, 2, "Done '%s' '%s'", req->type_name, req->target_typename);
 	    eppic_setupidx(p->type, p->ref, p->nidx, p->idxlst);
 	    if(p->fct) eppic_type_setfct(p->type, 1);
-	    eppic_pushref(p->type, p->ref+(p->nidx?1:0));
-            p->ref=p->fct=p->nidx=0;
-            p->idxlst=NULL;
+	    eppic_pushref(p->type, p->ref);
             if(p->tdef) { eppic_free(p->tdef); p->tdef=NULL; }
             if(p->maddr) {
-                eppic_pushref(p->type, 1);
+                /* Arays and struct/unions are indexed via an operator so
+                   we add a ref for the operator to resolve. */
                 eppic_setmemaddr(p->value, (ull)p->maddr);
-                eppic_do_deref(1, p->value, p->value);
+                if(!eppic_type_isinvmcore(p->type)) {
+                    eppic_pushref(p->type, 1);
+                    eppic_do_deref(p->value, p->value);
+                }
             }
         break;
         case EOP_MEMBER_SIZES :
@@ -249,7 +253,7 @@ apigetctype(int ctype, char *name, TYPE_S *tout)
     req.fp = pc->nullfp;
     req.priv = &priv;
     priv.type=tout;
-    req.callback = api_callback;
+    req.tcb = api_callback;
     buf[sizeof buf-1]='\0';
     
     if(eppic_is_struct(ctype)) snprintf(buf, sizeof buf, "struct %s", name);
@@ -291,7 +295,7 @@ apimember(char *sname, char *mname, void **stmp)
     req.name = sname;
     req.member = mname;
     req.priv = &priv;
-    req.callback = api_callback;
+    req.tcb = api_callback;
     req.fp = pc->nullfp;
     priv.stmember=stmp;
     gdb_interface(&req);
@@ -383,7 +387,7 @@ apigetval(char *name, ull *addr, VALUE_S *value)
     priv.value=value;
     priv.addr=addr;
     priv.type=eppic_gettype(value);
-    req.callback = api_callback;
+    req.tcb = api_callback;
     gdb_interface(&req);
     if(req.typecode == TYPE_CODE_UNDEF) {
         eppic_dbg(DBG_ALL, 2, "Value of name '%s' not found", name);
@@ -413,7 +417,7 @@ apigetenum(char *name, ENUM_S *e)
     req.priv = &priv;
     priv.enumt=e;
     req.fp = pc->nullfp;
-    req.callback = api_callback;
+    req.tcb = api_callback;
     gdb_interface(&req);
     if(req.typecode == TYPE_CODE_UNDEF) {
         eppic_dbg_named(DBG_TYPE, name, 2, "Enum '%s' Not Found.\n", name);

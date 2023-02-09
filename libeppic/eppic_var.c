@@ -380,7 +380,7 @@ void
 eppic_freedata(value_t *v)
 {
     
-    if(is_ctype(v->type.type) || v->type.type == V_STRING) {
+    if(v->type.type == V_STRING) {
 
         if(v->v.data) eppic_free(v->v.data);
         v->v.data=0;
@@ -393,7 +393,7 @@ void
 eppic_dupdata(value_t *v, value_t *vs)
 {
 
-    if(is_ctype(vs->type.type) || vs->type.type == V_STRING) {
+    if(vs->type.type == V_STRING) {
 
         v->v.data=eppic_alloc(vs->type.size);
         memmove(v->v.data, vs->v.data, vs->type.size);
@@ -412,7 +412,7 @@ eppic_freeval(value_t *v)
 void
 eppic_freevar(var_t*v)
 {
-
+    eppic_dbg(DBG_ALL, 1, "Freeing var '%s'", v->name);
     if(v->name) eppic_free(v->name);
     eppic_freeval(v->v);
     eppic_freedvar(v->dv);
@@ -422,6 +422,7 @@ eppic_freevar(var_t*v)
 void 
 eppic_enqueue(var_t*vl, var_t*v)
 {
+    eppic_dbg(DBG_ALL, 1, "Enqueuing '%s'", vl->name);
     v->prev=vl->prev;
     v->next=vl;
     vl->prev->next=v;
@@ -431,6 +432,7 @@ eppic_enqueue(var_t*vl, var_t*v)
 void
 eppic_dequeue(var_t*v)
 {
+    eppic_dbg(DBG_ALL, 1, "Dequeuing '%s'", v->name);
     v->prev->next=v->next;
     v->next->prev=v->prev;
     v->next=v->prev=v;
@@ -922,7 +924,7 @@ eppic_setsvlev(int newlev)
 {
 int lev;
 
-    /*printf("svlev=%d newlev=%d\n", svlev, newlev);*/
+    eppic_dbg(DBG_ALL, 1, "svlev=%d newlev=%d\n", svlev, newlev);
     for(lev=svlev-1; lev>=newlev; lev--) {
 
        if(svs[lev].type==S_AUTO) {
@@ -1271,7 +1273,12 @@ eppic_setini(node_t*n)
     if((void*)n->exe == (void*)eppic_exevar) {
 
         var_t*v=eppic_getvarbyname(((vnode_t*)(n->data))->name, 0, 0);
-        if(!v) eppic_error("Variable '%s' is undefined", ((vnode_t*)(n->data))->name);
+        if(!v) {
+            srcpos_t pos;
+            eppic_curpos(&n->pos, &pos);
+            eppic_rerror(&pos, "Variable '%s' is undefined", ((vnode_t*)(n->data))->name);
+            eppic_curpos(&pos, 0);
+        }
         v->ini=1;
     }
 }
@@ -1302,10 +1309,14 @@ value_t *val;
     {
         case V_STRING:
         {
-        char *p=eppic_alloc(val->type.size+1);
+            char *p=eppic_alloc(val->type.size+1);
+            srcpos_t pos;
+            eppic_curpos(&name->pos, &pos);
             /* return the value_t of that string variable */
-            strcpy(p, val->v.data);
+            if(val->v.data) strcpy(p, val->v.data);
+            else eppic_rerror(&pos, "NULL value to string attempted");
             eppic_free(vname);
+            eppic_curpos(&pos, 0);
             return p;
         }
         default:

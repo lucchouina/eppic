@@ -49,7 +49,7 @@ typedef struct {
 #define S3 ((V3)->v.data)
 #define S4 ((V4)->v.data)
 
-void eppic_do_deref(int n, value_t *v, value_t *ref);
+void eppic_do_deref(value_t *v, value_t *ref);
 ul
 eppic_bool(value_t *v)
 {
@@ -153,41 +153,47 @@ srcpos_t p;
     eppic_setini(i->var);
     var=NODE_EXE(i->var);
 
-    /* check the type of the variable */
-    /* if it's a pointer then index through the image */
-    if(var->type.type==V_REF) {
+    /* Anything with a vmcore adddress (saved in v->mem ? */
+    if(var->mem) {
 
         int size;
         int n=eppic_getval(vi);
         value_t *ref;
 
-        /* if this is an array and we're not at the rightmost index */
-        if(var->type.idxlst && var->type.idxlst[1]) {
-
-            int i, size=var->type.size;
+        if(var->type.idxlst) {
+        
+            int size;
+            
+            if(var->type.ref) size=eppic_defbsize();
+            else size=var->type.size;
 
             v=eppic_cloneval(var);
 
-            v->type.idxlst[0]=0;
-            for(i=1; var->type.idxlst[i]; i++) {
+            if(var->type.idxlst[1]) {
+                /* shift indexes left and reposition memory pointer accordingly */
+                int i;
 
-                size *= var->type.idxlst[i];
-                v->type.idxlst[i]=var->type.idxlst[i+1];
+                v->type.idxlst[0]=0;
+                for(i=1; var->type.idxlst[i]; i++) {
+
+                    size *= var->type.idxlst[i];
+                    v->type.idxlst[i]=var->type.idxlst[i+1];
+                }
+                v->mem+=size*n;
             }
+            else {
 
-            if(eppic_defbsize()==4) {
-
-                v->v.ul+=size*n;
-                v->mem=v->v.ul;
-
-            } else {
-
-                v->v.ull+=size*n;
-                v->mem=v->v.ull;
+                v->mem+=size*n;
+                /* can free the last array of the replica */
+                eppic_free(v->type.idxlst);
+                v->type.idxlst=NULL;
+                if(!eppic_type_isinvmcore(&v->type)) {
+                    eppic_pushref(&v->type, 1);
+                    eppic_do_deref(v, v);
+                }
             }
-            
-
-        } else {
+        }
+        else {
 
             v=eppic_newval();
             ref=eppic_cloneval(var);
@@ -195,17 +201,8 @@ srcpos_t p;
             if(var->type.ref==1) size=var->type.size;
             else size=eppic_defbsize();
 
-            if(eppic_defbsize()==4) {
-
-                ref->v.ul+=size*n;
-                ref->mem=ref->v.ul;
-
-            } else {
-
-                ref->v.ull+=size*n;
-                ref->mem=ref->v.ull;
-            }
-            eppic_do_deref(1, v, ref);
+            ref->mem=ref->v.ull+size*n;
+            eppic_do_deref(v, ref);
             eppic_freeval(ref);
         }
 
@@ -301,7 +298,6 @@ eppic_exeadrof(adrof *a)
 {
 value_t *rv, *v=NODE_EXE(a->expr);
 
-#if 0
     /* we can only do this op on something that came from system image
        Must not allow creation of references to local variable */
     if(!v->mem) {
@@ -310,17 +306,11 @@ value_t *rv, *v=NODE_EXE(a->expr);
         eppic_rerror(&a->pos, "Invalid operand to '&' operator");
 
     }
-#endif
     /* create the reference */
     rv=eppic_newval();
     eppic_duptype(&rv->type, &v->type);
     eppic_pushref(&rv->type, 1);
-
-    /* remmember position in image */
-    if(eppic_defbsize()==8) rv->v.ull=v->mem;
-    else rv->v.ul=v->mem;
-    rv->mem=0;
-
+    rv->mem=rv->v.ull=v->mem;
     eppic_freeval(v);
 
     return rv;
@@ -801,77 +791,48 @@ eppic_setderef(value_t *v1, value_t *v2)
 /*
     Do a de-referencing from a pointer (ref) and put the result in v.
 */
-typedef struct {
-    int lev;
-    node_t*n;
-} ptrto;
-
 void
-eppic_do_deref(int n, value_t *v, value_t *ref)
+eppic_do_deref(value_t *v, value_t *ref)
 {
 ull madr, new_madr;
 
-    if(n > ref->type.ref) {
+    if(! ref->type.ref) {
 
         eppic_error("Too many levels of dereference");
 
     }else {
     
 
-        if(eppic_defbsize()==4) madr=(ull)ref->v.ul;
-        else madr=ref->v.ull;
-
-        /* copy the target type to the returned value_t's type_t*/
+        madr=ref->mem;
         eppic_duptype(&v->type, &ref->type);
+        eppic_popref(&v->type, 1);
 
-        /* do a number of deferences according to PTR value_t */
-        while(n--) {
+        if(!v->type.ref) {
 
-            eppic_popref(&v->type, 1);
-
-            if(!v->type.ref) {
-
-                /* make sure the pointer is pointing into the vmcore */
-                if(is_ctype(v->type.type)) {
-
-                    v->v.data=eppic_alloc(v->type.size);
-                    eppic_getmem(madr, v->v.data, v->type.size);
-
-                } else {
-
-                    /* get the data from the system image */
-                    switch(TYPE_SIZE(&v->type)) {
-
-                        case 1: eppic_getmem(madr, &v->v.uc, 1); 
-                            break;
-                        case 2: eppic_getmem(madr, &v->v.us, 2); 
-                            break;
-                        case 4: eppic_getmem(madr, &v->v.ul, 4);
-                            break;
-                        case 8: eppic_getmem(madr, &v->v.ull, 8); 
-                            break;
-
-                    }
-                }
+            /* for arrays and ctypes we do nothing. Indexing of member access will to the actual access */
+            if(eppic_type_isinvmcore(&v->type)) {
+            
+                eppic_dbg(DBG_ALL, 1, "deference os array");
             }
             else {
-        
-                /* get the pointer at this address */
-                if(eppic_defbsize()==4) {
 
-                    eppic_getmem(madr, &v->v.ul, 4);
-                    new_madr=v->v.ul;
+                /* get the data from the system image */
+                switch(TYPE_SIZE(&v->type)) {
 
-                } else {
+                    case 1: eppic_getmem(madr, &v->v.uc, 1); 
+                        break;
+                    case 2: eppic_getmem(madr, &v->v.us, 2); 
+                        break;
+                    case 4: eppic_getmem(madr, &v->v.ul, 4);
+                        break;
+                    case 8: eppic_getmem(madr, &v->v.ull, 8); 
+                        break;
 
-                    eppic_getmem(madr, &v->v.ull, 8);
-                    new_madr=v->v.ull;
                 }
             }
-
-            /* remember this address. For the '&' operator */
-            v->mem=madr;
-            madr=new_madr;
+        }
+        else {
+            eppic_getmem(madr, &v->v.ull, eppic_defbsize());
         }
     }
 
@@ -882,22 +843,20 @@ ull madr, new_madr;
 }
 
 static value_t *
-eppic_exepto(ptrto *pto)
+eppic_exepto(node_t *n)
 {
 value_t *v=eppic_newval();
-int n=pto->lev;
-value_t *ref=NODE_EXE(pto->n);
+value_t *ref=NODE_EXE(n);
 
-    eppic_do_deref(n, v, ref);
+    eppic_do_deref(v, ref);
     eppic_freeval(ref);
     return v;
 }
 
 static void
-eppic_freepto(ptrto *pto)
+eppic_freepto(node_t *n)
 {
-    NODE_FREE(pto->n);
-    eppic_free(pto);
+    NODE_FREE(n);
 }
     
 
@@ -905,13 +864,10 @@ eppic_freepto(ptrto *pto)
 node_t*
 eppic_newptrto(int lev, node_t*n)
 {
-ptrto *pto=eppic_alloc(sizeof(ptrto));
 node_t*nn=eppic_newnode();
 
-    pto->lev=lev;
-    pto->n=n;
     nn->exe=(xfct_t)eppic_exepto;
     nn->free=(ffct_t)eppic_freepto;
-    nn->data=pto;
+    nn->data=n;
     return nn;
 }
