@@ -91,7 +91,10 @@ The init() function can be used to initialize status dynamic arrays.
 
 Ex:
 
-file1: ``` static int array;
+file1: 
+
+``` 
+static int array;
 
 __init() 
 {
@@ -122,7 +125,10 @@ All standard C operators are supported for interger types (int, short, char etc.
 
 ### Special string type operators
 Basic operators
-Eppic support the following operators for the 'string' type. +, !=, <, >, <=, >= Examples: ``` s = "hello" + "World";
+Eppic support the following operators for the 'string' type. +, !=, <, >, <=, >= 
+Examples: 
+``` 
+    s = "hello" + "World";
 
     if("hello" == "world" ) { ... }
 ```
@@ -154,7 +160,9 @@ When indexing through a variable that is anything put a pointer. you end up crea
 
 Associative arrays can be scanned using the in operator combined with the for statement.
 
-Example: ``` int func() { char *cp, c; int array, i;
+Example: 
+``` 
+int func() { char *cp, c; int array, i;
 
             cp=(char *)symbol;
             c=cp[10];
@@ -168,13 +176,16 @@ Example: ``` int func() { char *cp, c; int array, i;
             }
 
     }
-``` In the 'c=cp10' statement, eppic goes to the system image to get one 'char' at the address symbol+10. This is thus the case of a simple pointer indexing, and does not create an associative array.
+``` 
+In the 'c=cp10' statement, eppic goes to the system image to get one 'char' at the address symbol+10. This is thus the case of a simple pointer indexing, and does not create an associative array.
 
 In the second case, 'array' is not a pointer, it's a 'int'. So eppic threats all indexing through it as dynamic.
 
 Additionally, eppic supports multi levels of dynamic index, which makes possible to create random trees of indexed values.
 
-Example: ``` int func() { int array, i, j;
+Example: 
+``` 
+int func() { int array, i, j;
 
             array[10]="array10";
             array[10][3]="array10,3";
@@ -197,7 +208,9 @@ Example: ``` int func() { int array, i, j;
 
 This feature of Eppic is valuable in the context of system image access and analysis, since they require frequent lists search. For example, with dynamic arrays, one can walk the proc list taking note of the proc*, then walking a user thread list taking note of the thread* and gathering some metrics for each of these threads. In order to get to these metrics at some later point in the execution, something like this could be used:
 
-Example: ``` func() { proc *p;
+Example: 
+``` 
+func() { proc *p;
 
             for(p in procs) {
 
@@ -247,7 +260,9 @@ To unload the a macro file use this function. "funcname" is the name of any glob
 void eppic_setcallback(void (*scb)(char *))
 To be called prior to any load calls. After each loads, eppic will call this function back with the name of each functions compiled. Typicly, the application will then perform checks and potencially install a new command for this function.
 
-Example: ``` void reg_callback(char *name) { char fname[MAX_SYMNAMELEN+sizeof("_usage")+1]; _command_t cmds[2];
+Example: 
+``` 
+void reg_callback(char *name) { char fname[MAX_SYMNAMELEN+sizeof("_usage")+1]; _command_t cmds[2];
 
         snprintf(fname, sizeof(fname), "%s_help", name);
         if(!eppic_chkfname(fname, 0)) return;
@@ -293,7 +308,8 @@ Everytime Eppic needs some piece of information, it will call the application ba
 
 Eppic_apiset() passes this structure to eppic:
 
-``` typedef unsigned long long ull; typedef struct {
+``` 
+typedef unsigned long long ull; typedef struct {
 
         int (*getmem)(ull, void *, int);
         int (*putmem)(ull, void *, int);
@@ -354,7 +370,8 @@ The API between the dso and eppic is quite simple at this time. It has not been 
 ## Example : Hello World function
 This is an example of a simple extension. An equivalent os the "hello world" C program, but this one gets 2 parameters, one int and one string and returns the received int.
 
-``` #include "eppic_api.h"
+``` 
+#include "eppic_api.h"
 
 value *
 helloworld(value *vi, value *vs)
@@ -385,7 +402,8 @@ BT_ENDDSO_FUNC()
     eppic_msg("Hello world being shutdown\n");
     eppic_free(buf);
 }
-``` The BT_SPEC_TABLE is scanned. It's a simple table with 2 entries per functions and terminated with a NULL prototype.
+``` 
+The BT_SPEC_TABLE is scanned. It's a simple table with 2 entries per functions and terminated with a NULL prototype.
 
 The DSO initializer function is called. If it returns 0 then installtion is terminates. If it returns 1 we proceed forward.
 
@@ -398,7 +416,8 @@ Type checking is performed by eppic at execution time on both, the function para
 ## Example: associative arrays
 DSO's can also receive, create and manipulate dynamic arrays. Here is an example of this:
 
-``` #include "eppic_api.h"
+``` 
+#include "eppic_api.h"
 
 #ifdef ARRAY_STATIC
 static value *v;
@@ -496,7 +515,9 @@ Here is a description of the builtin functions that ship with Eppic.
 
 Convert a string value to a long long. Base is the base that should be used to process the string e.g. 8, 10 or 16. If not specified, then the standard numeric format will be scnanned for ex: 0x[0-9a-fA-F]+ : hexadecimal 0[0-7]+ : octal [1-9]+[0-9]* : decimal This function is used when converting command line arguments to pointers.
 
-Example: ``` void mycommand() { int i;
+Example: 
+``` 
+void mycommand() { int i;
 
         for(i=1;i<argc;i++) {
 
@@ -516,7 +537,8 @@ It can also be used to test for image variable.
 
 Example:
 
-``` void mycommand() { if(exists("vmemlist")) {
+``` 
+void mycommand() { if(exists("vmemlist")) {
 
             // this version of the target
                             // does use vmemlist variable
@@ -548,7 +570,9 @@ Send a formatted message to the screen or output file. For proper allignment of 
 
 On a 32 bit system %p will print a 8 character hexadecimal value and on a 64 bit system it will print a 16 character value. So, to get proper alignment on both type of systems use the %> format which will print nothing on a 64 bit system but will print 8 times the following character on a 32 bit system.
 
-Example: ``` struct proc *p;
+Example: 
+``` 
+struct proc *p;
 
       printf("Proc  %>  uid     pid\n");
       printf("0x%p      %8d %8d\n"
@@ -567,13 +591,17 @@ Unload's a eppic macro file
 ## string sprintf(string format, ...)
 Creates a string from the result of a sprintf.
 
-Example: ``` void mycommand() {
+Example: 
+``` 
+void mycommand() {
 
     string msg;
 
         msg=sprintf("i=%d\n", i);
     }
-``` The result will be truncated to maxbytes if it would be longer.
+``` 
+
+The result will be truncated to maxbytes if it would be longer.
 
 ## int strlen(string s)
 Return the length of string s.
