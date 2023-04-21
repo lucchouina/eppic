@@ -506,6 +506,41 @@ static struct linuxdefs_s {
 	{"__ppc64__",   "1"},
 	{"BITS_PER_LONG","64"},
 #endif
+#ifdef ALPHA
+	{"__alpha__",    "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef PPC
+	{"__powerpc__",  "1"},
+	{"BITS_PER_LONG","32"},
+#endif
+#ifdef ARM
+	{"__arm__",      "1"},
+	{"BITS_PER_LONG","32"},
+#endif
+#ifdef ARM64
+	{"__aarch64__",   "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef MIPS
+	{"__mipsel__",   "1"},
+	{"BITS_PER_LONG","32"},
+#endif
+#ifdef MIPS64
+	{"__mipsel__",   "1"},
+	{"__mips64",     "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef SPARC64
+	{"__sparc_v9__", "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef RISCV64
+	{"__riscv",      "1"},
+	{"__riscv_xlen", "64"},
+	{"BITS_PER_LONG","64"},
+#endif
+
 	};
         
 static char *untdef[] = { 
@@ -906,13 +941,41 @@ eppic_init(void) /* Register the command set. */
 #ifdef S390X
 #define EPPIC_ABI  ABI_S390X
 #else
+#ifdef ALPHA
+#define EPPIC_ABI  ABI_ALPHA
+#else
+#ifdef PPC
+#define EPPIC_ABI  ABI_PPC
+#else
 #ifdef PPC64
 #define EPPIC_ABI  ABI_PPC64
+#else
+#ifdef ARM
+#define EPPIC_ABI  ABI_ARM
 #else
 #ifdef ARM64
 #define EPPIC_ABI  ABI_ARM64
 #else
+#ifdef MIPS
+#define EPPIC_ABI  ABI_MIPS
+#else
+#ifdef MIPS64
+#define EPPIC_ABI  ABI_MIPS64
+#else
+#ifdef SPARC64
+#define EPPIC_ABI  ABI_SPARC64
+#else
+#ifdef RISCV64
+#define EPPIC_ABI  ABI_RISCV64
+#else
 #error eppic: Unkown ABI 
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
 #endif
 #endif
 #endif
