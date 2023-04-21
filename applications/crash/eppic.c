@@ -464,25 +464,25 @@ static struct linuxdefs_s {
 	{"LINUX_2_6_X",		"(((LINUX_RELEASE) & 0xffff00) == 0x020600)"},
 	{"LINUX_3_X_X",         "(((LINUX_RELEASE) & 0xff0000) == 0x030000)"},
 	{"NULL",         "0"},
-#ifdef i386
+#ifdef X86
 	{"i386",         "1"},
 	{"__i386",       "1"},
 	{"__i386__",     "1"},
 	{"BITS_PER_LONG","32"},
 #endif
-#ifdef s390
+#ifdef S390
 	{"s390",         "1"},
 	{"__s390",       "1"},
 	{"__s390__",     "1"},
 	{"BITS_PER_LONG","32"},
 #endif
-#ifdef s390x
+#ifdef S390X
 	 {"s390x",       "1"},
 	 {"__s390x",     "1"},
 	 {"__s390x__",   "1"},
 	{"BITS_PER_LONG","32"},
 #endif
-#ifdef __ia64__
+#ifdef IA64
 	{"ia64",         "1"},
 	{"__ia64",       "1"},
 	{"__ia64__",     "1"},
@@ -491,7 +491,7 @@ static struct linuxdefs_s {
 	{"__LONG_MAX__", "9223372036854775807L"},
 	{"BITS_PER_LONG","64"},
 #endif
-#ifdef __x86_64__
+#ifdef X86_64
 	{"x86_64",         "1"},
 	{"_x86_64_",       "1"},
 	{"__x86_64__",     "1"},
@@ -500,7 +500,7 @@ static struct linuxdefs_s {
 	{"__LONG_MAX__", "9223372036854775807L"},
 	{"BITS_PER_LONG","64"},
 #endif
-#ifdef ppc64
+#ifdef PPC64
 	{"ppc64",       "1"},
 	{"__ppc64",     "1"},
 	{"__ppc64__",   "1"},
@@ -891,19 +891,19 @@ eppic_init(void) /* Register the command set. */
                	char *home=getenv("HOME");
 
 		/* set api, default size, and default sign for types */
-#ifdef i386
+#ifdef X86
 #define EPPIC_ABI  ABI_X86
 #else 
-#ifdef __ia64__
+#ifdef IA64
 #define EPPIC_ABI  ABI_IA64
 #else
-#ifdef __x86_64__
+#ifdef X86_64
 #define EPPIC_ABI  ABI_X86_64
 #else
-#ifdef __s390__
+#ifdef S390
 #define EPPIC_ABI  ABI_S390
 #else
-#ifdef __s390x__
+#ifdef S390X
 #define EPPIC_ABI  ABI_S390X
 #else
 #ifdef PPC64
