@@ -23,13 +23,20 @@
 #define MAXIDX      20
 
 /* abi values */
-#define ABI_MIPS    1
-#define ABI_INTEL_X86   2
-#define ABI_INTEL_IA    3
-#define ABI_S390        4
-#define ABI_S390X       5
-#define ABI_PPC64   6
-#define ABI_ARM64   7
+#define ABI_X86     1
+#define ABI_ALPHA   2
+#define ABI_PPC     3
+#define ABI_IA64    4
+#define ABI_S390    5
+#define ABI_S390X   6
+#define ABI_PPC64   7
+#define ABI_X86_64  8
+#define ABI_ARM     9
+#define ABI_ARM64   10
+#define ABI_MIPS    11
+#define ABI_SPARC64 12
+#define ABI_MIPS64  13
+#define ABI_RISCV64 14
 
 /* types of variables */
 #define V_BASE          1

@@ -892,13 +892,13 @@ eppic_init(void) /* Register the command set. */
 
 		/* set api, default size, and default sign for types */
 #ifdef i386
-#define EPPIC_ABI  ABI_INTEL_X86
+#define EPPIC_ABI  ABI_X86
 #else 
 #ifdef __ia64__
-#define EPPIC_ABI  ABI_INTEL_IA
+#define EPPIC_ABI  ABI_IA64
 #else
 #ifdef __x86_64__
-#define EPPIC_ABI  ABI_INTEL_IA
+#define EPPIC_ABI  ABI_X86_64
 #else
 #ifdef __s390__
 #define EPPIC_ABI  ABI_S390

@@ -522,7 +522,7 @@ eppic_getalign(type_t*t)
         int n;
 
         /* Intel 386 ABI says that double values align on 4 bytes */
-        if(abitype==ABI_INTEL_X86) n=((t->size>4)?4:t->size);
+        if(abitype==ABI_X86) n=((t->size>4)?4:t->size);
         else  n=t->size;
         return n*8;
     }
@@ -865,7 +865,7 @@ printf("\n%s %s\n", ctype==V_STRUCT?"Structure":"Union", name ? name : "");
                 nbits=nidx*stm->type.size*8;
             }
 
-            if(abitype==ABI_INTEL_X86) {
+            if(abitype==ABI_X86) {
 
                 int pos=nextbit/8;
 
