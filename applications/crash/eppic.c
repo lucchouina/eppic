@@ -464,25 +464,25 @@ static struct linuxdefs_s {
 	{"LINUX_2_6_X",		"(((LINUX_RELEASE) & 0xffff00) == 0x020600)"},
 	{"LINUX_3_X_X",         "(((LINUX_RELEASE) & 0xff0000) == 0x030000)"},
 	{"NULL",         "0"},
-#ifdef i386
+#ifdef X86
 	{"i386",         "1"},
 	{"__i386",       "1"},
 	{"__i386__",     "1"},
 	{"BITS_PER_LONG","32"},
 #endif
-#ifdef s390
+#ifdef S390
 	{"s390",         "1"},
 	{"__s390",       "1"},
 	{"__s390__",     "1"},
 	{"BITS_PER_LONG","32"},
 #endif
-#ifdef s390x
+#ifdef S390X
 	 {"s390x",       "1"},
 	 {"__s390x",     "1"},
 	 {"__s390x__",   "1"},
 	{"BITS_PER_LONG","32"},
 #endif
-#ifdef __ia64__
+#ifdef IA64
 	{"ia64",         "1"},
 	{"__ia64",       "1"},
 	{"__ia64__",     "1"},
@@ -491,7 +491,7 @@ static struct linuxdefs_s {
 	{"__LONG_MAX__", "9223372036854775807L"},
 	{"BITS_PER_LONG","64"},
 #endif
-#ifdef __x86_64__
+#ifdef X86_64
 	{"x86_64",         "1"},
 	{"_x86_64_",       "1"},
 	{"__x86_64__",     "1"},
@@ -500,12 +500,47 @@ static struct linuxdefs_s {
 	{"__LONG_MAX__", "9223372036854775807L"},
 	{"BITS_PER_LONG","64"},
 #endif
-#ifdef ppc64
+#ifdef PPC64
 	{"ppc64",       "1"},
 	{"__ppc64",     "1"},
 	{"__ppc64__",   "1"},
 	{"BITS_PER_LONG","64"},
 #endif
+#ifdef ALPHA
+	{"__alpha__",    "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef PPC
+	{"__powerpc__",  "1"},
+	{"BITS_PER_LONG","32"},
+#endif
+#ifdef ARM
+	{"__arm__",      "1"},
+	{"BITS_PER_LONG","32"},
+#endif
+#ifdef ARM64
+	{"__aarch64__",   "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef MIPS
+	{"__mipsel__",   "1"},
+	{"BITS_PER_LONG","32"},
+#endif
+#ifdef MIPS64
+	{"__mipsel__",   "1"},
+	{"__mips64",     "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef SPARC64
+	{"__sparc_v9__", "1"},
+	{"BITS_PER_LONG","64"},
+#endif
+#ifdef RISCV64
+	{"__riscv",      "1"},
+	{"__riscv_xlen", "64"},
+	{"BITS_PER_LONG","64"},
+#endif
+
 	};
         
 static char *untdef[] = { 
@@ -891,28 +926,56 @@ eppic_init(void) /* Register the command set. */
                	char *home=getenv("HOME");
 
 		/* set api, default size, and default sign for types */
-#ifdef i386
-#define EPPIC_ABI  ABI_INTEL_X86
+#ifdef X86
+#define EPPIC_ABI  ABI_X86
 #else 
-#ifdef __ia64__
-#define EPPIC_ABI  ABI_INTEL_IA
+#ifdef IA64
+#define EPPIC_ABI  ABI_IA64
 #else
-#ifdef __x86_64__
-#define EPPIC_ABI  ABI_INTEL_IA
+#ifdef X86_64
+#define EPPIC_ABI  ABI_X86_64
 #else
-#ifdef __s390__
+#ifdef S390
 #define EPPIC_ABI  ABI_S390
 #else
-#ifdef __s390x__
+#ifdef S390X
 #define EPPIC_ABI  ABI_S390X
+#else
+#ifdef ALPHA
+#define EPPIC_ABI  ABI_ALPHA
+#else
+#ifdef PPC
+#define EPPIC_ABI  ABI_PPC
 #else
 #ifdef PPC64
 #define EPPIC_ABI  ABI_PPC64
 #else
+#ifdef ARM
+#define EPPIC_ABI  ABI_ARM
+#else
 #ifdef ARM64
 #define EPPIC_ABI  ABI_ARM64
 #else
+#ifdef MIPS
+#define EPPIC_ABI  ABI_MIPS
+#else
+#ifdef MIPS64
+#define EPPIC_ABI  ABI_MIPS64
+#else
+#ifdef SPARC64
+#define EPPIC_ABI  ABI_SPARC64
+#else
+#ifdef RISCV64
+#define EPPIC_ABI  ABI_RISCV64
+#else
 #error eppic: Unkown ABI 
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
 #endif
 #endif
 #endif
