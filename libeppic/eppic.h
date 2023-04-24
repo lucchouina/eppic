@@ -45,7 +45,6 @@ typedef MEMBER_S {
     int size;   /* size in bytes of the member or of the bit array */
     int fbit;   /* fist bit (-1) is not a bit field */
     int nbits;  /* number of bits for this member */
-    int value;      /* for a enum member, the corresponding value_t */
 
 } member_t;
 
