@@ -910,7 +910,6 @@ printf("Final size = %d\n", t->size);
 #endif
 
     sti->all=1;
-    eppic_addfunc_ctype(sti->idx);
     return t;
 }
 

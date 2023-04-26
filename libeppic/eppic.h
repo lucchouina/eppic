@@ -354,7 +354,6 @@ void  eppic_freeidx(idx_t *idx);
 void  eppic_freedvar(dvar_t*dv);
 void  eppic_caller(void *p, void *retaddr);
 void  eppic_pushenums(enum_t *et);
-void  eppic_addfunc_ctype(int idx);
 void  eppic_setapiglobs(void);
 void  eppic_setbuiltins(void);
 void  eppic_setdefbtype(int size, int sign);
