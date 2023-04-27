@@ -962,7 +962,6 @@ static int apiputmem(ull iaddr, void *p, int nbytes) { return 1; }
 static int apimember(char *sname, char *mname, void **stmp) { return 0; }
 static int apigetctype(int ctype, char *name, type_t*tout) { return 0; }
 static char * apigetrtype(char *name, type_t*t) { return ""; }
-static int apialignment(ull idx) { return 0; }
 static int apigetval(char *name, ull *val, value_t *v) { return 0; }
 static int apigetenum(char *name, enum_t *enums) { return 0; }
 static def_t *apigetdefs(void) { return 0; }
