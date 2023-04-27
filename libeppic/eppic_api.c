@@ -279,12 +279,6 @@ stinfo_t *st=(stinfo_t*)(t->idx);
     return !st->all;
 }
 
-char *
-eppic_gettdefname(ull idx)
-{
-    return ((stinfo_t*)(idx))->name;
-}
-
 static int init=0;
 static void
 eppic_chkinit(void)

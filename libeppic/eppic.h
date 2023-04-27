@@ -448,7 +448,6 @@ int   eppic_isneg(char *name);
 int   eppicpperror(char *s);
 
 char  *eppic_vartofunc(node_t *name);
-char  *eppic_gettdefname(ull idx);
 char  *eppic_ctypename(int type_t);
 char  *eppic_filempath(char *fname);
 char  *eppic_fileipath(char *fname);
