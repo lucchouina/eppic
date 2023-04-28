@@ -582,6 +582,7 @@ stinfo_t*sti;
         sti=eppic_alloc(sizeof(stinfo_t));
         sti->name=0;
         sti->idx=(ull)sti;
+	sti->ctype.type=ctype;
         eppic_addst(sti);
     }
     return sti;
@@ -724,7 +725,7 @@ char *name=n?NODE_NAME(n):0;
 
     t=eppic_newbtype(0);
     sti=eppic_chkctype(ctype, name);
-    t->type=sti->ctype.type=ctype;
+    t->type=sti->ctype.type;
     t->idx=sti->ctype.idx=sti->idx;
     sti->stm=0;
     mpp=&sti->stm;
