@@ -639,7 +639,7 @@ enum_t *ep=0;
 char *name=n?NODE_NAME(n):0;
 type_t *t;
 
-    if(n) eppic_startctype(ctype, n);
+    if(name) eppic_startctype_named(ctype, name);
     sti=eppic_chkctype(ctype, name);
 
     while(dv) {
