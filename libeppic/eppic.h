@@ -218,7 +218,6 @@ typedef DVAR_S {
 
 typedef STINFO_S {
     char        *name;  /* structure name */
-    ull      idx;   /* key for search */
     int      all;   /* local : partial or complete declaration ? */
     TYPE_S       ctype; /* associated type */
     TYPE_S       rtype; /* real type_t when typedef */

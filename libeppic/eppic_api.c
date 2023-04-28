@@ -60,7 +60,7 @@ stinfo_t*last=&slist;
 
         stinfo_t*next=st->next;
 
-        if(st->ctype.type==V_TYPEDEF && st->idx & LOCALTYPESBASE) {
+        if(st->ctype.type==V_TYPEDEF && st->ctype.idx & LOCALTYPESBASE) {
 
             eppic_free(st->name);
             eppic_free(st);
@@ -133,7 +133,7 @@ stinfo_t*tst;
 
     for(tst=slist.next; tst; tst=tst->next) {
 
-        if(tst->ctype.type == type && tst->idx == idx) {
+        if(tst->ctype.type == type && tst->ctype.idx == idx) {
 
             return tst; 
         }
@@ -255,7 +255,7 @@ problem for the user put this is not a full blown C compiler.
         eppic_pushref(&st->rtype, dv->ref);
         st->name=dv->name;
         dv->name=0;
-        st->idx=eppic_nextidx();
+        st->ctype.idx=eppic_nextidx();
         st->ctype.type=V_TYPEDEF;
 
         eppic_addst(st);
@@ -414,7 +414,7 @@ type_t *t=eppic_newtype();
         st->name=eppic_alloc(strlen(name)+1);
         strcpy(st->name, name);
         st->stm=0;
-        st->idx=st->ctype.idx=(ull)(unsigned long)st;
+        st->ctype.idx=(ull)(unsigned long)st;
         eppic_addst(st);
         if(ctype == V_ENUM) {
             API_GETENUM(name, st->enums);
@@ -581,7 +581,7 @@ stinfo_t*sti;
 
         sti=eppic_alloc(sizeof(stinfo_t));
         sti->name=0;
-        sti->idx=(ull)sti;
+	sti->ctype.idx=(ull)(unsigned long)sti;
 	sti->ctype.type=ctype;
         eppic_addst(sti);
     }
@@ -686,7 +686,7 @@ type_t *t;
     /* we return a simple basetype_t*/
     /* after stahing the idx in rtype */
     t=eppic_newbtype(INT);
-    t->rtype=sti->idx;
+    t->rtype=sti->ctype.idx;
     t->typattr |= eppic_isenum(-1);
         
     return t;
@@ -726,7 +726,7 @@ char *name=n?NODE_NAME(n):0;
     t=eppic_newbtype(0);
     sti=eppic_chkctype(ctype, name);
     t->type=sti->ctype.type;
-    t->idx=sti->ctype.idx=sti->idx;
+    t->idx=sti->ctype.idx;
     sti->stm=0;
     mpp=&sti->stm;
 
