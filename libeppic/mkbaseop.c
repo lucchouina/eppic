@@ -133,20 +133,20 @@ int i,j,k;
     printf("void (*opfuncs[%u][%u][%u])()={\n", NTYPS, NTYPS, NOPS);
 
     for(i=0;i<NTYPS;i++) {
-    
+
+        printf("  {\n");
         for(j=0; j<NTYPS;j++) {
 
-            printf("\t");
-
+            printf("    {");
             for(k=0;k<NOPS;k++) {
-
-                if(!k%6) printf("\n\t");
-                printf("op_%s_%s_%s, ", opstbl[k].acro, typtbl[i], typtbl[j]);
-
+                printf("%sop_%s_%s_%s,",
+                       k%4==0 ? "\n      " : " ",
+                       opstbl[k].acro, typtbl[i], typtbl[j]);
             }
-            printf("\n");
+            printf("\n    },\n");
 
         }
+	printf("  },\n");
 
     }
     printf("};\n");

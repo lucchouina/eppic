@@ -45,7 +45,6 @@ typedef MEMBER_S {
     int size;   /* size in bytes of the member or of the bit array */
     int fbit;   /* fist bit (-1) is not a bit field */
     int nbits;  /* number of bits for this member */
-    int value;      /* for a enum member, the corresponding value_t */
 
 } member_t;
 
@@ -219,7 +218,6 @@ typedef DVAR_S {
 
 typedef STINFO_S {
     char        *name;  /* structure name */
-    ull      idx;   /* key for search */
     int      all;   /* local : partial or complete declaration ? */
     TYPE_S       ctype; /* associated type */
     TYPE_S       rtype; /* real type_t when typedef */
@@ -355,7 +353,6 @@ void  eppic_freeidx(idx_t *idx);
 void  eppic_freedvar(dvar_t*dv);
 void  eppic_caller(void *p, void *retaddr);
 void  eppic_pushenums(enum_t *et);
-void  eppic_addfunc_ctype(int idx);
 void  eppic_setapiglobs(void);
 void  eppic_setbuiltins(void);
 void  eppic_setdefbtype(int size, int sign);
@@ -450,7 +447,6 @@ int   eppic_isneg(char *name);
 int   eppicpperror(char *s);
 
 char  *eppic_vartofunc(node_t *name);
-char  *eppic_gettdefname(ull idx);
 char  *eppic_ctypename(int type_t);
 char  *eppic_filempath(char *fname);
 char  *eppic_fileipath(char *fname);

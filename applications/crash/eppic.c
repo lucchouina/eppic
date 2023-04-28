@@ -303,12 +303,6 @@ apimember(char *sname, char *mname, void **stmp)
     return 0;
 }
 
-static char *
-apigetrtype(char *tstr, TYPE_S *t)
-{
-	return 0;
-}
-
 /* test a string for being a hex number */
 static int
 is_hex(char *c)
@@ -614,7 +608,6 @@ apiops icops= {
 	apiputmem, 
 	apimember, 
 	apigetctype, 
-	apigetrtype, 
 	apigetval, 
 	apigetenum, 
 	apigetdefs,

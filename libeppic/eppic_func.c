@@ -29,12 +29,6 @@
 */
 struct fdata;
 
-typedef struct fctype_t {
-    int idx;
-    struct fctype_t*next;
-
-} fctype_t;
-
 typedef struct func {
 
     char *name;     /* name of the function */
@@ -58,7 +52,6 @@ typedef struct fdata {
     var_t*fgvs;     /* associated list of global variables */
     void *globs;        /* handle for these globals */
     func *funcs;        /* chained list of functions */
-    fctype_t *ctypes;   /* ctypes declared by this function */
     struct fdata *next;     /* chained list of files */
 
 } fdata;
@@ -272,7 +265,6 @@ eppic_freefile(fdata *fd)
     if(fd) {
 
         func *fct, *nxt;
-        fctype_t *ct, *nct;
 
         if(fd->isdso) {
 
@@ -299,11 +291,6 @@ eppic_freefile(fdata *fd)
             eppic_freefunc(fct);
         }
 
-        for(ct=fd->ctypes; ct; ct=nct) {
-
-            nct=ct->next;
-            eppic_free(ct);
-        }
         eppic_free(fd->fname);
         if(fd->globs) eppic_rm_globals(fd->globs);
         eppic_free(fd);
@@ -538,16 +525,6 @@ void *h;
     else if(!silent) eppic_msg(dlerror());
     eppic_free(fname);
     return 0;
-}
-
-void
-eppic_addfunc_ctype(int idx)
-{
-fctype_t *fct=eppic_alloc(sizeof(fctype_t));
-
-    fct->idx=idx;
-    fct->next=fall->ctypes;
-    fall->ctypes=fct;
 }
 
 int 

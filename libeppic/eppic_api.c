@@ -60,7 +60,7 @@ stinfo_t*last=&slist;
 
         stinfo_t*next=st->next;
 
-        if(st->ctype.type==V_TYPEDEF && st->idx & LOCALTYPESBASE) {
+        if(st->ctype.type==V_TYPEDEF && st->ctype.idx & LOCALTYPESBASE) {
 
             eppic_free(st->name);
             eppic_free(st);
@@ -133,7 +133,7 @@ stinfo_t*tst;
 
     for(tst=slist.next; tst; tst=tst->next) {
 
-        if(tst->ctype.type == type && tst->idx == idx) {
+        if(tst->ctype.type == type && tst->ctype.idx == idx) {
 
             return tst; 
         }
@@ -255,7 +255,7 @@ problem for the user put this is not a full blown C compiler.
         eppic_pushref(&st->rtype, dv->ref);
         st->name=dv->name;
         dv->name=0;
-        st->idx=eppic_nextidx();
+        st->ctype.idx=eppic_nextidx();
         st->ctype.type=V_TYPEDEF;
 
         eppic_addst(st);
@@ -277,12 +277,6 @@ stinfo_t *st=(stinfo_t*)(t->idx);
         eppic_error("Oops eppic_ispartial");
     }
     return !st->all;
-}
-
-char *
-eppic_gettdefname(ull idx)
-{
-    return ((stinfo_t*)(idx))->name;
 }
 
 static int init=0;
@@ -420,7 +414,7 @@ type_t *t=eppic_newtype();
         st->name=eppic_alloc(strlen(name)+1);
         strcpy(st->name, name);
         st->stm=0;
-        st->idx=st->ctype.idx=(ull)(unsigned long)st;
+        st->ctype.idx=(ull)(unsigned long)st;
         eppic_addst(st);
         if(ctype == V_ENUM) {
             API_GETENUM(name, st->enums);
@@ -587,7 +581,8 @@ stinfo_t*sti;
 
         sti=eppic_alloc(sizeof(stinfo_t));
         sti->name=0;
-        sti->idx=(ull)sti;
+	sti->ctype.idx=(ull)(unsigned long)sti;
+	sti->ctype.type=ctype;
         eppic_addst(sti);
     }
     return sti;
@@ -645,7 +640,7 @@ enum_t *ep=0;
 char *name=n?NODE_NAME(n):0;
 type_t *t;
 
-    if(n) eppic_startctype(ctype, n);
+    if(name) eppic_startctype_named(ctype, name);
     sti=eppic_chkctype(ctype, name);
 
     while(dv) {
@@ -691,7 +686,7 @@ type_t *t;
     /* we return a simple basetype_t*/
     /* after stahing the idx in rtype */
     t=eppic_newbtype(INT);
-    t->rtype=sti->idx;
+    t->rtype=sti->ctype.idx;
     t->typattr |= eppic_isenum(-1);
         
     return t;
@@ -730,8 +725,8 @@ char *name=n?NODE_NAME(n):0;
 
     t=eppic_newbtype(0);
     sti=eppic_chkctype(ctype, name);
-    t->type=sti->ctype.type=ctype;
-    t->idx=sti->ctype.idx=sti->idx;
+    t->type=sti->ctype.type;
+    t->idx=sti->ctype.idx;
     sti->stm=0;
     mpp=&sti->stm;
 
@@ -910,7 +905,6 @@ printf("Final size = %d\n", t->size);
 #endif
 
     sti->all=1;
-    eppic_addfunc_ctype(sti->idx);
     return t;
 }
 
@@ -962,8 +956,6 @@ static int apigetmem(ull iaddr, void *p, int nbytes) { return 1; }
 static int apiputmem(ull iaddr, void *p, int nbytes) { return 1; }
 static int apimember(char *sname, char *mname, void **stmp) { return 0; }
 static int apigetctype(int ctype, char *name, type_t*tout) { return 0; }
-static char * apigetrtype(char *name, type_t*t) { return ""; }
-static int apialignment(ull idx) { return 0; }
 static int apigetval(char *name, ull *val, value_t *v) { return 0; }
 static int apigetenum(char *name, enum_t *enums) { return 0; }
 static def_t *apigetdefs(void) { return 0; }
@@ -974,7 +966,6 @@ static apiops nullops= {
         apiputmem, 
         apimember, 
         apigetctype, 
-        apigetrtype, 
         apigetval, 
         apigetenum, 
         apigetdefs, 

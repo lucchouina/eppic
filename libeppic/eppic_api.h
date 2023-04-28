@@ -84,7 +84,6 @@ typedef struct {
     int         (*putmem)(ull, void *, int);        /* read from system image */
     int         (*member)(char *, char *, void **); /* Get a members of a struct/union */
     int         (*getctype)(int ctype, char *, TYPE_S*); /* get struct/union type information */
-    char*       (*getrtype)(char*, TYPE_S *);       /* get complex type information */
     int         (*getval)(char *, ull *addr, VALUE_S *);/* get the value of a system variable */
     int         (*getenum)(char *name, ENUM_S *);   /* get the list of values for an enum type */
     DEF_S*      (*getdefs)(void);                   /* get the list of compiler pre-defined macros */
@@ -129,7 +128,6 @@ extern apiops *eppic_ops;
 #define API_PUTMEM(i, p, n) ((eppic_ops->putmem)((i), (p), (n)))
 #define API_MEMBER(n, mn, s)((eppic_ops->member)((n), (mn), (s)))
 #define API_GETCTYPE(i, n, t)   ((eppic_ops->getctype)((i), (n), (t)))
-#define API_GETRTYPE(i, t)  ((eppic_ops->getrtype)((i), (t)))
 #define API_ALIGNMENT(i)    ((eppic_ops->alignment)((i)))
 #define API_GETVAL(n,a, val)   ((eppic_ops->getval)((n), (a), (val)))
 #define API_GETENUM(n, e)      ((eppic_ops->getenum)(n, e))
