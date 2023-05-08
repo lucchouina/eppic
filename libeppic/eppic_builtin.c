@@ -78,7 +78,7 @@ value_t *v;
         if(!API_GETMEM(madr, p, INCREMENT)) break;
 
         /* have we found the '\0' yet ? */
-        for(i=0;i<INCREMENT; i++) if(!p[i]) break;
+        for(i=0;i<INCREMENT; i++) if(!p[i]) goto out;
 
         madr+=INCREMENT;
         p+=INCREMENT;
@@ -88,6 +88,7 @@ value_t *v;
         }
 
     }
+out:
     v=eppic_setstrval(eppic_newval(), buf);
     eppic_free(buf);
     return v;
