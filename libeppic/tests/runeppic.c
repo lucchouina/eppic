@@ -973,6 +973,20 @@ int main(int argc, char **argv)
         if (!success)
 		return 2;
 
-        eppic_load(eppic_fname);
-        return eppic_cmd("main", argv + optind + 1, argc - optind - 1);
+        if (!eppic_load(eppic_fname)) {
+		fprintf(stderr, "Cannot load %s\n", eppic_fname);
+		return 2;
+	}
+
+        if (eppic_cmd("main", argv + optind + 1, argc - optind - 1)) {
+		fputs("Cannot execute main()\n", stderr);
+		return 2;
+	}
+
+	if (!eppic_unload(eppic_fname)) {
+		fprintf(stderr, "Cannot unload %s\n", eppic_fname);
+		return 2;
+	}
+
+	return 0;
 }
