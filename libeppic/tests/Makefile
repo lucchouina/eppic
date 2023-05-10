@@ -25,6 +25,7 @@ TESTS = \
 	tst-hello-bytes \
 	tst-struct \
 	tst-struct-eppic \
+	tst-switch \
 	tst-union \
 	tst-union-eppic
 
