@@ -23,7 +23,8 @@ TESTS = \
 	tst-hello-bytes \
 	tst-struct \
 	tst-struct-eppic \
-	tst-union
+	tst-union \
+	tst-union-eppic
 
 CONFIG = testenv.conf
 
