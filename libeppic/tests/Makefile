@@ -20,7 +20,8 @@
 TESTS = \
 	tst-exists \
 	tst-hello \
-	tst-hello-bytes
+	tst-hello-bytes \
+	tst-struct
 
 CONFIG = testenv.conf
 
