@@ -19,6 +19,7 @@
 
 TESTS = \
 	tst-enum \
+	tst-enum-eppic \
 	tst-exists \
 	tst-hello \
 	tst-hello-bytes \
