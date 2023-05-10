@@ -18,6 +18,7 @@
 #
 
 TESTS = \
+	tst-exists \
 	tst-hello
 
 CONFIG = testenv.conf
