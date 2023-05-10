@@ -21,7 +21,8 @@ TESTS = \
 	tst-exists \
 	tst-hello \
 	tst-hello-bytes \
-	tst-struct
+	tst-struct \
+	tst-struct-eppic
 
 CONFIG = testenv.conf
 
