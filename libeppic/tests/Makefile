@@ -18,6 +18,7 @@
 #
 
 TESTS = \
+	tst-enum \
 	tst-exists \
 	tst-hello \
 	tst-hello-bytes \
