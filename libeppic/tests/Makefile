@@ -18,6 +18,7 @@
 #
 
 TESTS = \
+	tst-dynarray \
 	tst-enum \
 	tst-enum-eppic \
 	tst-exists \

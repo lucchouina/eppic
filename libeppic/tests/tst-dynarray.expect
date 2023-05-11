@@ -1,0 +1,17 @@
+eenie meenie miney mo . . . . . . catch a tiger by the toe
+[0] = eenie
+[1] = meenie
+[2] = miney
+[3] = mo
+[10] = catch
+[11] = a tiger
+[12] = by the
+[13] = toe
+[eenie] = 0
+[meenie] = 1
+[miney] = 2
+[mo] = 3
+[catch] = 10
+[a tiger] = 11
+[by the] = 12
+[toe] = 13
