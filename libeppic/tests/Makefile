@@ -24,6 +24,7 @@ TESTS = \
 	tst-exists \
 	tst-hello \
 	tst-hello-bytes \
+	tst-loops \
 	tst-struct \
 	tst-struct-eppic \
 	tst-switch \
