@@ -410,7 +410,6 @@ dvar:
     | dvar ':' term         { $$ = eppic_dvarfld($1, $3); }
     | dvar '[' opt_term ']' { $$ = eppic_dvaridx($1, $3); }
     | PTR dvar              { $$ = eppic_dvarptr($1, $2); }
-    | dvar '(' ')'          { $$ = eppic_dvarfct($1, 0); }
     | dvar '(' farglist ')' { $$ = eppic_dvarfct($1, $3); }
     | '(' dvar ')'          { $$ = $2; }
     ;
