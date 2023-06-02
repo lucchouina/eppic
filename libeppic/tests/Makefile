@@ -26,6 +26,7 @@ TESTS = \
 	tst-hello \
 	tst-hello-bytes \
 	tst-loops \
+	tst-op \
 	tst-struct \
 	tst-struct-eppic \
 	tst-switch \
@@ -63,6 +64,20 @@ runeppic.o: runeppic.c ../eppic_api.h
 runeppic: runeppic.o ../libeppic.a
 	$(CCLD) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+mkop: mkop.o
+	$(CCLD) $(CFLAGS) -o $@ $^
+
+tst-op.c: mkop
+	./mkop > $@
+
+tst-op.o: tst-op.c
+	$(CC) $(CFLAGS) -Wno-overflow -Wno-shift-overflow -c -o $@ $^
+mkop-expect: tst-op.o
+	$(CCLD) $(CFLAGS) -o $@ $^
+tst-op.expect: mkop-expect
+	./mkop-expect > $@
+tst-op.out: tst-op.expect
+
 %.out: %.c runeppic
 	./runeppic --config $(CONFIG) $< >$@
 
@@ -81,3 +96,4 @@ clean:
 	-/bin/rm -f *.o *.output *.log $(BINARIES)
 
 .PHONY: all install check clean
+.DELETE_ON_ERROR:
