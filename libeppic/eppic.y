@@ -285,7 +285,6 @@ one_var_decl:
 type_decl:
     type                    { $$=$1; needvar++; }
     | storage_list          { $$=$1; needvar++; }
-    | type storage_list     { $$=eppic_addstorage($1, $2); needvar++; }
     | storage_list type     { $$=eppic_addstorage($2, $1); needvar++; }
     | type_decl PTR         { $$=$1; eppic_pushref($1, $2);; needvar++; }
     | type_decl storage_list    { $$=eppic_addstorage($1, $2); needvar++; }
