@@ -167,8 +167,6 @@ stmt:
 
 stmtlist:
        /* empty */          { $$ = 0; }
-    | stmt
-    | stmtgroup
     | stmtlist stmt         { $$ = eppic_addstat($1, $2); }
     | stmtlist stmtgroup    { $$ = eppic_addstat($1, $2); }
     ;
