@@ -83,7 +83,6 @@ int eppicerror(char *);
 
 file:
     /* empty */
-    | fileobj
     | file fileobj
     ;
 
