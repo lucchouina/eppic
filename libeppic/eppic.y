@@ -225,7 +225,7 @@ term:
     | term AND term             { $$ = eppic_newop(AND, 2, $1, $3); }
     | SUB term %prec UMINUS     { $$ = eppic_newop(UMINUS, 1, $2); }
     | '~' term %prec FLIP       { $$ = eppic_newop(FLIP, 1, $2); }
-    | '+' term %prec UMINUS     { $$ = $2; }
+    | ADD term %prec UMINUS     { $$ = $2; }
     | term '(' ')' %prec CALL   { $$ = eppic_newcall($1, NULLNODE); }
     | term '(' termlist ')' %prec CALL  { $$ = eppic_newcall($1, $3); }
     | DECR term                 { $$ = eppic_newop(PREDECR, 1, $2); }
