@@ -108,7 +108,13 @@ $(CFILES): $(HFILES) eppic.tab.h
 $(TARGETS): $(OFILES)
 	$(AR) cur $(TARGETS) $(OFILES)
 
+check: all
+	$(MAKE) -C tests check
+
 clean: 
 	-/bin/rm -f *.o $(TARGETS) $(LDIRT)
+	-$(MAKE) -C tests clean
 
 clobber: clean
+
+.PHONY: all default check clean
