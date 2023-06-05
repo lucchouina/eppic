@@ -14,6 +14,7 @@
  */
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "eppic.h"
 
 typedef struct {
@@ -203,37 +204,49 @@ eppic_newnum(char *buf)
 {
 int type, idx, issigned=1, islonglong=0;
 unsigned long long val;
+char *endp;
+int base;
 
-    /* get the value_t of this constant. Could be hex, octal or dec. */
-    if(buf[0]=='0') {
+    /* get the number base. Could be hex, octal or dec. */
+    if (buf[0]=='0')
+	if (buf[1]=='x') {
+	    base=16;
+	    buf+=2;
+	} else
+	    base=8;
+    else
+	base=10;
 
-        if(buf[1]=='x') {
-
-            if(!sscanf(buf, "%llx", &val)) goto error;
-
-        } else {
-
-            if(!sscanf(buf,"%llo", &val)) goto error;
-        }
-
-    } else {
-
-        if(!sscanf(buf,"%lld", &val)) goto error;
-
-    }
-
-    /* threat the constant's atributes */
+    /* treat the constant's suffix */
     for(idx=strlen(buf)-1;idx;idx--) {
-    
-        char c=buf[idx];
-        
-        switch(c) {
-            case('u'):case('U'): issigned=0; break;
-            case('l'):case('L'): islonglong++; break;
-            default:
-                idx=1; // force loop break;
-        } 
+	char c=buf[idx];
+
+	if (c>='0' && c<='9')
+	    break;
+
+	if (c=='u' || c=='U') {
+	    if (!issigned)
+		goto error;
+	    issigned=0;
+	} else if (c=='l' || c=='L') {
+	    if (islonglong)
+		goto error;
+	    /* ISO C does not permit mixed-case LL suffix. Clang gives
+	     * an error, but GCC will happily parse them. Let's follow
+	     * the robustness principle and be liberal in what we accept.
+	     */
+	    if (buf[idx-1]=='l' || buf[idx-1]=='L') {
+		islonglong=2;
+		idx--;
+	    } else
+		islonglong=1;
+	}
     }
+
+    /* get the value_t of this constant. */
+    val = strtoull(buf,&endp,base);
+    if(endp!=buf+idx+1) goto error;
+
     if(issigned) {
     
         if(eppic_defbsize()==8 || islonglong == 2)
