@@ -1,0 +1,9 @@
+Cannot load invalid-octal.c
+File invalid-octal.c, line 3, Error: Oops! NUMBER
+Result code 2
+Cannot load invalid-decimal.c
+File invalid-decimal.c, line 3, Error: syntax error
+Result code 2
+Cannot load invalid-suffix.c
+File invalid-suffix.c, line 3, Error: Oops! NUMBER
+Result code 2

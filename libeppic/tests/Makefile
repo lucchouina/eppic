@@ -39,7 +39,8 @@ LDFLAGS = -L..
 LIBS = -leppic -lncurses
 
 BINARIES = runeppic
-OUTPUTS = $(TESTS:=.out)
+OUTPUTS = $(TESTS:=.out) \
+	tst-bad-constants.out
 
 CFLAGS += -I.. -g -O2
 ifeq ($(TARGET), PPC64)
@@ -64,6 +65,9 @@ runeppic: runeppic.o ../libeppic.a
 
 %.out: %.c runeppic
 	./runeppic --config $(CONFIG) $< >$@
+
+%.out: %.sh runeppic
+	./$< >$@
 
 check:
 	rm -f test-suite.log $(OUTPUTS)
