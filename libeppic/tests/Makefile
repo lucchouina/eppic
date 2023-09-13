@@ -18,6 +18,7 @@
 #
 
 TESTS = \
+	tst-constants \
 	tst-dynarray \
 	tst-enum \
 	tst-enum-eppic \
