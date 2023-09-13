@@ -211,7 +211,6 @@ int base;
     if (buf[0]=='0')
 	if (buf[1]=='x') {
 	    base=16;
-	    buf+=2;
 	} else
 	    base=8;
     else
@@ -222,6 +221,8 @@ int base;
 	char c=buf[idx];
 
 	if (c>='0' && c<='9')
+	    break;
+	if ((base == 16) && (c>='a' && c<='f'))
 	    break;
 
 	if (c=='u' || c=='U') {
