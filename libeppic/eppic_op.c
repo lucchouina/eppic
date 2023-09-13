@@ -690,6 +690,8 @@ doop:
             if(top != o->op) vp=v;
             else vp=V2;
 
+	    if (va == NULL)
+		    eppic_error("bad assigment error - undef var");
             eppic_chkandconvert(va->v, vp);
 
             eppic_freeval(v);
