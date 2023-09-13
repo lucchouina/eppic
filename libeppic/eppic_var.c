@@ -145,7 +145,7 @@ var_t*var;
             if(t) {
 
                 eppic_freetype(t);
-                eppic_warning("Variable '%s' already defined as typedef.\n");
+                eppic_warning("Variable '%s' already defined as typedef.\n", dv->name);
             }
         }
 
