@@ -1,0 +1,6 @@
+exists("hello_world") = 1
+exists("p") = 1
+exists("q") = 1
+exists("s") = 1
+exists("main") = 1
+exists("nonexistent") = 0

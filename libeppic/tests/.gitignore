@@ -1,0 +1,7 @@
+*.out
+mkop
+mkop-expect
+tst-op.c
+tst-op.expect
+test-suite.log
+runeppic

@@ -1,0 +1,79 @@
+LIBEPPIC unit tests
+===================
+
+This directory contains the LIBEPPIC test suite. The goal of the tests is to
+test libeppic itself rather than the integration with other tools (crash
+utility, makedumpfile) or specific kernel dump files. The test suite is
+self-contained and minimalistic.
+
+Test files are processed by runeppic. Memory content, types and symbols are
+controlled by a configuration file. This approach is simpler than parsing
+debuginfo from actual binaries.
+
+The configuration file syntax is similar to an INI file. Each line contains
+one option. The option starts with an identifier followed by an equal sign
+('='). The rest of the line is the value. Complex values start with an opening
+brace ('{') and span over the following lines until a closing brace ('}').
+All white space around the option name and value is ignored. Configuration
+options are grouped into sections delimited by the section name in square
+brackets on a line of its own. Options before the first section belong to a
+global section. Blank lines and lines which start with a semicolon are
+ignored.
+
+Global section
+--------------
+
+The global section may contain these options:
+
+- abi: ABI (see EPPIC_ABI_xxx macros in libeppic_api.h)
+- nbpw: Number of bytes per word (sizeof int)
+- sign: Default sign of the char type
+
+These parameters are passed as arguments to eppic_apiset().
+
+"memory" section
+----------------
+
+This section defines the content of memory. It should start with defining the
+size of the memory region ("size" option).
+
+All other options should be named "<type>@<address>", where type is one of:
+
+- STRING: an unterminated character string
+- CSTRING: a NUL-terminated character string
+- BYTE: list of bytes
+- WORD: list of words (2 bytes each)
+- DWORD: list of double-words (4 bytes each)
+- QWORD: list of quad-words (8 bytes each)
+
+For string types, the value is taken verbatim. For other types, the value is a
+space-delimited list of values of the given size.
+
+"type" section
+--------------
+
+Each option in this section defines a type with the given name. The value has
+the form "<type>:<definition>", where type and definition can be:
+
+- BASE: size of a base type in bytes
+- TYPEDEF: name of another type
+- REF: name of another type
+- ENUM: list of enumeration constants inside braces (see below)
+- UNION: list of members inside braces (see below)
+- STRUCT: list of members inside braces (see below)
+
+Each line in an ENUM defines one enumeration constant and is either a single
+identifier, or an identifier followed by an equal sign and a numeric value.
+
+Each line in a UNION or STRUCT defines one member. It has the form
+"<type>:<name>", where type may contain a colon (':') and number of bits in a
+bit-field. No alignment is applied to STRUCT members; they behave as if they
+were declared with __attribute__((packed)).
+
+To define an unnamed EPPIC type (which can be still referenced from the
+configuration file), prefix the type name with a hash sign ('#').
+
+"symbol" section
+----------------
+
+Each option defines a symbol. The value has the form "<type>:<address>".
