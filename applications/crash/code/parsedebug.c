@@ -8,7 +8,7 @@ int parsedebug()
     while(argc) {
         printf("argv[1]='%s'\n", argv[1]);
         if(argv[1]=="on") parsedebugon();
-        else if(argv[1]=="off") pasedebugoff();
+        else if(argv[1]=="off") parsedebugoff();
         else break;
         return 1;
     }
