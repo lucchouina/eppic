@@ -130,7 +130,7 @@ int i,j,k;
     /* create the array from within which the runtime functions
        will indexed to get a function pointer */
 
-    printf("void (*opfuncs[%u][%u][%u])()={\n", NTYPS, NTYPS, NOPS);
+    printf("void (*opfuncs[%u][%u][%u])(value_t *v1, value_t *v2, value_t *ret)={\n", NTYPS, NTYPS, NOPS);
 
     for(i=0;i<NTYPS;i++) {
 
