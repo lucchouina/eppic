@@ -72,14 +72,14 @@ int i,j,k;
     
         for(j=0; j<NTYPS;j++) {
 
-            int bool=0;
+            int bool_t=0;
 
             for(k=0;k<NOPS;k++) {
 
-                if(opstbl[k].code==EQ) bool++;
+                if(opstbl[k].code==EQ) bool_t++;
 
 
-                if(!bool) {
+                if(!bool_t) {
 
                     printf(""
 "static void \n"
