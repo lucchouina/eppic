@@ -805,7 +805,7 @@ static char *ptrs[MAXCLASSES+1];
 
 void eppic_setclass(char *cl)
 {
-int i,j;
+int i;
     
     clist=0;
     for(i=0;classes[i].name;i++) {

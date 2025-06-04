@@ -794,7 +794,7 @@ eppic_setderef(value_t *v1, value_t *v2)
 void
 eppic_do_deref(value_t *v, value_t *ref)
 {
-ull madr, new_madr;
+ull madr;
 
     if(! ref->type.ref) {
 

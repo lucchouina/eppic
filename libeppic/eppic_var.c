@@ -214,7 +214,6 @@ var_t*var;
            eppic_addsvs(S_PARSE, eppic_dupvlist(plist));
         }
         eppic_enqueue(vlist, var);
-next:
         dv=dv->next;
     }
     eppic_free(t);
@@ -644,7 +643,6 @@ eppic_getvarbyname(char *name, int silent, int local)
 {
 var_t*vp;
 int i, aidx=0;
-ull apiv, mem;
 
     for(i=svlev-1; i>=0; i--) {
 
@@ -1144,7 +1142,6 @@ eppic_valindex(value_t *var, value_t *idx, value_t *ret)
         
         /* extract char form string */
         int i;
-        value_t *v;
         switch(idx->type.type) {
         case V_BASE: i=(unival(idx)); break;
         default:

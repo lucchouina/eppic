@@ -83,10 +83,9 @@ mac_t *eppic_getcurmac(void);
 mac_t * 
 eppic_getmac(char *name, int takeof)
 {
-mac_t *m, *mm=0;
+mac_t *m;
 mac_t *prev=0;
 mac_t *eppic_getcurmac(void);
-int nosubs=0;
 
     eppic_dbg_named(DBG_MAC, name, 3, "Looking for macro %s\n", name);
     
