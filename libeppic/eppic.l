@@ -27,6 +27,7 @@
 
 #define yylval eppiclval
 #include    "eppic.h"
+#define YY_NO_INPUT
 #define YY_NO_UNPUT
 #include    "eppic.tab.h"
 
