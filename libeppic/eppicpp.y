@@ -61,7 +61,7 @@ term:
 	| term P_LE	term		{ $$ = eppic_newop(LE, 2, $1, $3); last_term = $$; }
 	| term P_LT	term		{ $$ = eppic_newop(LT, 2, $1, $3); last_term = $$; }
 	| term P_NE	term		{ $$ = eppic_newop(NE, 2, $1, $3); last_term = $$; }
-	| '(' term ')'			{ $$ = $2; last_term == $$; }
+	| '(' term ')'			{ $$ = $2; last_term = $$; }
 	| term P_OR	term		{ $$ = eppic_newop(OR, 2, $1, $3); last_term = $$; }
 	| term P_XOR	term		{ $$ = eppic_newop(XOR, 2, $1, $3); last_term = $$; }
 	| term P_SHR	term		{ $$ = eppic_newop(SHR, 2, $1, $3); last_term = $$; }
