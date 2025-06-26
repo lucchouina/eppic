@@ -13,10 +13,11 @@
  * GNU General Public License for more details.
  */
 #include <string.h>
-#include <termio.h>
+#include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <sys/ioctl.h>
 #include "eppic.h"
 
 /* information necessary for a builtin function */
@@ -166,7 +167,7 @@ value_t *
 eppic_getchar(void)
 {
 char c; 
-struct termio tio, stio;
+struct termios tio, stio;
 int in=fileno(stdin);
 
     if(ioctl(in, TCGETA, &tio)) c=255;
