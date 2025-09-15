@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 #include <string.h>
-#include <termio.h>
+#include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -166,19 +166,19 @@ value_t *
 eppic_getchar(void)
 {
 char c; 
-struct termio tio, stio;
+struct termios tio, stio;
 int in=fileno(stdin);
 
-    if(ioctl(in, TCGETA, &tio)) c=255;
+    if(tcgetattr(in, &tio)) c=255;
     else {
         stio=tio;
         tio.c_lflag &= ~(ICANON | ECHO);
         tio.c_iflag &= ~(ICRNL  | INLCR);
         tio.c_cc[VMIN] = 1;
         tio.c_cc[VTIME] = 0;
-        ioctl(in, TCSETA, &tio);
+        tcsetattr(in, TCSANOW, &tio);
         c=getc(stdin);
-        ioctl(in, TCSETA, &stio);
+        tcsetattr(in, TCSANOW, &stio);
     }
     return eppic_defbtype(eppic_newval(), (ull)c);
 }

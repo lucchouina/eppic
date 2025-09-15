@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <curses.h>
 #include <term.h>
-#include <termio.h>
+#include <sys/ioctl.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <malloc.h>
