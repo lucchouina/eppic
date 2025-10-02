@@ -560,6 +560,7 @@ inval:
                 V1;
                 eppic_transfer(v=eppic_newval(), v1,
                           unival(v1) + L2 * size);
+                v->mem += L2 * size;
             }
             break;
             case SUB: { /* expr - expr */
@@ -572,6 +573,7 @@ inval:
                     V1;
                     eppic_transfer(v=eppic_newval(), v1,
                               unival(v1) - L2 * size);
+                    v->mem -= L2 * size;
                 }
             }
             break;
@@ -579,6 +581,7 @@ inval:
                 V1;
                 eppic_transfer(v=eppic_newval(), v1,
                           unival(v1) - size);
+                v->mem -= size;
                 eppic_setval(v1, v);
             }
             break;
@@ -586,6 +589,7 @@ inval:
                 V1;
                 eppic_transfer(v=eppic_newval(), v1,
                           unival(v1) + size);
+                v->mem += size;
                 eppic_setval(v1, v);
             }
             break;
@@ -593,6 +597,7 @@ inval:
                 V1;
                 eppic_transfer(v=eppic_newval(), v1,
                           unival(v1) + size);
+                v->mem += size;
                 eppic_setval(v1, v);
                 eppic_transfer(v, v1, unival(v1));
             }
@@ -601,6 +606,7 @@ inval:
                 V1;
                 eppic_transfer(v=eppic_newval(), v1,
                           unival(v1) - size);
+                v->mem -= size;
                 eppic_setval(v1, v);
                 eppic_transfer(v, v1, unival(v1));
             }
