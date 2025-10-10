@@ -222,7 +222,7 @@ int base;
 
 	if (c>='0' && c<='9')
 	    break;
-	if ((base == 16) && (c>='a' && c<='f'))
+	if ((base == 16) && ((c>='a' && c<='f') || (c>='A' && c<='F')))
 	    break;
 
 	if (c=='u' || c=='U') {
