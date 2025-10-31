@@ -305,8 +305,8 @@ fdata *fd=eppic_findfile(name, 0);
 
     if(fd) {
 
-        eppic_freefile(fd);
         (void)eppic_findfile(name, 1);
+        eppic_freefile(fd);
         return 1;
 
     }
