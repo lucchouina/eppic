@@ -348,7 +348,7 @@ eppic_refarray(value_t *v, int inc)
 {
 array_t*ap, *na;
 
-    if(!v->arr) return;
+    if(!v || !v->arr) return;
     v->arr->ref+=inc;
     if(v->arr->ref == 0) {
 
@@ -1246,10 +1246,8 @@ srcpos_t pos;
         eppic_rerror(&pos, "undefined variable '%s'", vn->name);
 
     }
-    if(!curv->ini && !insizeof && !vlev) {
-
+    if(!curv->ini && !curv->v && !insizeof && !vlev) {
         eppic_rerror(&pos, "Variable [%s] used before being initialized", curv->name);
-
     }
 
     nv=eppic_newval();
