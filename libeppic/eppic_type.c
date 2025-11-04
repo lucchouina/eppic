@@ -211,7 +211,7 @@ eppic_duptype(type_t*t, type_t*ts)
     }
 }
 
-#define asarray(v) (v->arr!=v->arr->next)
+#define asarray(v) (v->arr && v->arr!=v->arr->next)
 
 /*
     Duplicate a value_t.
