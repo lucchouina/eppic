@@ -626,7 +626,7 @@ void *mtag;
         fd->time=time(0);
 
         /* compilation was ok , check for a __init() function to execute */
-        if((fct=eppic_getfbyname("__init", fd))) {
+        if((fct=eppic_getfbyname("__init", fd)) || (fct=eppic_getfbyname("main", fd))) {
 
             int *exval;
             jmp_buf exitjmp;
@@ -809,13 +809,13 @@ char *filename;
 
         if(!filename) {
 
-            eppic_msg("File not found : %s\n", fname);
-            return;
+		eppic_msg("File not found : %s\n", fname);
+		return;
 
-        }
+	    }
 
         line=1;
-        freeit=1;
+            freeit=1;
 
 
     } else {

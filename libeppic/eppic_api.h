@@ -16,6 +16,9 @@
 /* minor and major version number 
     4.0 switch to new Eppic name and use of fully typed symbols.
 */
+#ifndef EPPIC_API_H
+#define EPPIC_API_H
+
 #define S_MAJOR 5
 #define S_MINOR 0
 
@@ -298,3 +301,5 @@ void eppic_dbg_named(int class, char *name, int level, char *, ...);
 
 /* parsers debug flags */
 extern int eppicdebug, eppicppdebug;
+
+#endif
