@@ -20,6 +20,7 @@
 #include "defs.h"
 
 #include <eppic_api.h>
+#include "eppic.h"
 
 /*
  *  Global data (global_data.c) 
@@ -643,6 +644,39 @@ FILE *ofp = NULL;
 }
 
 
+static const char *example[] = {
+"/*										",
+" * Example: Print all tasks' PID & command					",
+" *										",
+" * // Kernel's global variables and data structures can be used directly without",
+" * // pre-define it in kernel header. If any are within kernel modules, should",
+" * // preload the .ko first via \"mod -S/-s\" cmd in crash before invoke your",
+" * // eppic program.								",
+" * //										",
+" * // Eppic program's syntax is similar to C but with slight differences.	",
+" * // Code samples:								",
+" * // https://github.com/lucchouina/eppic/tree/master/applications/crash/code",
+" * // Available eppic functions:						",
+" * // https://github.com/lucchouina/eppic/blob/master/libeppic/eppic_builtin.c#L316",
+" *										",
+" * static void main(void)								",
+" * {										",
+" *     struct task_struct *p;							",
+" *     unsigned long offset;							",
+" *										",
+" *     p = (struct task_struct *)&init_task;					",
+" *     offset = (unsigned long)&(p->tasks) - (unsigned long)p;		",
+" *										",
+" *     do {									",
+" *         printf(\"PID: %d Command: %s\\n\", (int)(p->pid), getstr((char *)&(p->comm[0])));",
+" *         p = (struct task_struct *)((unsigned long)(p->tasks.next) - offset);",
+" *     } while(p != &init_task);						",
+" * }										",
+" *										",
+" * crash> load program_file.c",
+" */										",
+};
+
 void
 edit_cmd(void)
 {
@@ -668,6 +702,19 @@ int c, file=0;
 
         else if(args[optind]) {
             while(args[optind]) {
+                if(file && !eppic_filempath(args[optind])) {
+                    int fd = open(args[optind], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	            if (fd < 0) {
+		        eppic_msg("File not found : %s\n", args[optind]);
+	            } else {
+                        char newline = '\n';
+		        for (int i = 0; i < sizeof(example)/sizeof(char *); i++) {
+			        write(fd, example[i], strlen(example[i]));
+			        write(fd, &newline, sizeof(newline));
+		        }
+		        close(fd);
+	            }
+                }
 	        eppic_vi(args[optind++], file);
             }
 	}
@@ -788,6 +835,39 @@ char *sclass_help[]={
                 NULL
 };
 
+char *eppic_help[]={
+		"eppic",
+                "Run eppic program(es).",
+                "<fileName1.c>[, <fileName2.c>]",
+                "  Oneshot run eppic program(es) which with a main() entry each.",
+                NULL
+};
+
+void
+eppic_command(void)
+{
+	char *buf;
+	optind = 1;
+
+	if (!args[optind]) {
+		cmd_usage(crash_global_cmd(), SYNOPSIS);
+		return;
+	}
+
+	while(args[optind]) {
+		buf = eppic_filempath(args[optind]);
+		if (!buf) {
+			eppic_msg("eppic_filempath error on %s\n", args[optind]);
+			return;
+		}
+		eppic_load(buf);
+		if (eppic_findfile(buf, 0))
+			eppic_unload(buf);
+		eppic_free(buf);
+		optind++;
+	}
+}
+
 #define NCMDS 200
 static struct command_table_entry command_table[NCMDS] =  {
 
@@ -797,6 +877,7 @@ static struct command_table_entry command_table[NCMDS] =  {
 	{"sdebug", sdebug_cmd, sdebug_help},
 	{"sname", sname_cmd, sname_help},
 	{"sclass", sclass_cmd, sclass_help},
+	{"eppic", eppic_command, eppic_help},
 	{(char *)0 }
 };
 
@@ -885,6 +966,13 @@ char **help=malloc(sizeof *help * 5);
         }
     }
     free(help);
+
+    if (load && !strcmp(name, "main")) {
+        int optind_save = optind;
+        eppic_cmd(name, NULL, 0);
+        optind = optind_save;
+    }
+
     return;
 }
 
