@@ -1012,7 +1012,7 @@ char *eppic_getmpath(void) { return mpath; }
 char *eppic_getipath(void) { return ipath; }
 
 static char *curp=0;
-char *eppic_curp(char *p) { char *op=curp; p?(curp=p):(op=curp); return op; }
+char *eppic_curp(char *p) { char *op=curp; curp=p; return op; }
 
 static char*
 eppic_cattry(char *first, char *second)
