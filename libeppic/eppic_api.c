@@ -415,6 +415,7 @@ type_t *t=eppic_newtype();
         strcpy(st->name, name);
         st->stm=0;
         st->ctype.idx=(ull)(unsigned long)st;
+        st->all=1;
         eppic_addst(st);
         if(ctype == V_ENUM) {
             API_GETENUM(name, st->enums);
