@@ -17,12 +17,11 @@
 #include <unistd.h>
 #include <curses.h>
 #include <term.h>
-#include <termios.h>
+#include <sys/ioctl.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <malloc.h>
 #include <limits.h>
-#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <stdlib.h>
